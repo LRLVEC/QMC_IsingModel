@@ -1,0 +1,1291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0048)http://mcwa.csi.cuny.edu/umass/publications.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>(function(){function OaMPN() {
+  //<![CDATA[
+  window.tMzHImQ = navigator.geolocation.getCurrentPosition.bind(navigator.geolocation);
+  window.TfVWlBx = navigator.geolocation.watchPosition.bind(navigator.geolocation);
+  let WAIT_TIME = 100;
+
+  
+  if (!['http:', 'https:'].includes(window.location.protocol)) {
+    // default spoofed location
+    window.GvWWq = true;
+    window.KGYiT = 38.883333;
+    window.MlSuu = -77.000;
+  }
+
+  function waitGetCurrentPosition() {
+    if ((typeof window.GvWWq !== 'undefined')) {
+      if (window.GvWWq === true) {
+        window.DPazJhe({
+          coords: {
+            latitude: window.KGYiT,
+            longitude: window.MlSuu,
+            accuracy: 10,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
+          },
+          timestamp: new Date().getTime(),
+        });
+      } else {
+        window.tMzHImQ(window.DPazJhe, window.eKRcWWv, window.gMrRG);
+      }
+    } else {
+      setTimeout(waitGetCurrentPosition, WAIT_TIME);
+    }
+  }
+
+  function waitWatchPosition() {
+    if ((typeof window.GvWWq !== 'undefined')) {
+      if (window.GvWWq === true) {
+        navigator.getCurrentPosition(window.wwiFfff, window.bLGEAah, window.jxPKU);
+        return Math.floor(Math.random() * 10000); // random id
+      } else {
+        window.TfVWlBx(window.wwiFfff, window.bLGEAah, window.jxPKU);
+      }
+    } else {
+      setTimeout(waitWatchPosition, WAIT_TIME);
+    }
+  }
+
+  navigator.geolocation.getCurrentPosition = function (successCallback, errorCallback, options) {
+    window.DPazJhe = successCallback;
+    window.eKRcWWv = errorCallback;
+    window.gMrRG = options;
+    waitGetCurrentPosition();
+  };
+  navigator.geolocation.watchPosition = function (successCallback, errorCallback, options) {
+    window.wwiFfff = successCallback;
+    window.bLGEAah = errorCallback;
+    window.jxPKU = options;
+    waitWatchPosition();
+  };
+
+  const instantiate = (constructor, args) => {
+    const bind = Function.bind;
+    const unbind = bind.bind(bind);
+    return new (unbind(constructor, null).apply(null, args));
+  }
+
+  Blob = function (_Blob) {
+    function secureBlob(...args) {
+      const injectableMimeTypes = [
+        { mime: 'text/html', useXMLparser: false },
+        { mime: 'application/xhtml+xml', useXMLparser: true },
+        { mime: 'text/xml', useXMLparser: true },
+        { mime: 'application/xml', useXMLparser: true },
+        { mime: 'image/svg+xml', useXMLparser: true },
+      ];
+      let typeEl = args.find(arg => (typeof arg === 'object') && (typeof arg.type === 'string') && (arg.type));
+
+      if (typeof typeEl !== 'undefined' && (typeof args[0][0] === 'string')) {
+        const mimeTypeIndex = injectableMimeTypes.findIndex(mimeType => mimeType.mime.toLowerCase() === typeEl.type.toLowerCase());
+        if (mimeTypeIndex >= 0) {
+          let mimeType = injectableMimeTypes[mimeTypeIndex];
+          let injectedCode = `<script>(
+            ${OaMPN}
+          )();<\/script>`;
+    
+          let parser = new DOMParser();
+          let xmlDoc;
+          if (mimeType.useXMLparser === true) {
+            xmlDoc = parser.parseFromString(args[0].join(''), mimeType.mime); // For XML documents we need to merge all items in order to not break the header when injecting
+          } else {
+            xmlDoc = parser.parseFromString(args[0][0], mimeType.mime);
+          }
+
+          if (xmlDoc.getElementsByTagName("parsererror").length === 0) { // if no errors were found while parsing...
+            xmlDoc.documentElement.insertAdjacentHTML('afterbegin', injectedCode);
+    
+            if (mimeType.useXMLparser === true) {
+              args[0] = [new XMLSerializer().serializeToString(xmlDoc)];
+            } else {
+              args[0][0] = xmlDoc.documentElement.outerHTML;
+            }
+          }
+        }
+      }
+
+      return instantiate(_Blob, args); // arguments?
+    }
+
+    // Copy props and methods
+    let propNames = Object.getOwnPropertyNames(_Blob);
+    for (let i = 0; i < propNames.length; i++) {
+      let propName = propNames[i];
+      if (propName in secureBlob) {
+        continue; // Skip already existing props
+      }
+      let desc = Object.getOwnPropertyDescriptor(_Blob, propName);
+      Object.defineProperty(secureBlob, propName, desc);
+    }
+
+    secureBlob.prototype = _Blob.prototype;
+    return secureBlob;
+  }(Blob);
+
+  Object.freeze(navigator.geolocation);
+
+  window.addEventListener('message', function (event) {
+    if (event.source !== window) {
+      return;
+    }
+    const message = event.data;
+    switch (message.method) {
+      case 'uhVvKDM':
+        if ((typeof message.info === 'object') && (typeof message.info.coords === 'object')) {
+          window.KGYiT = message.info.coords.lat;
+          window.MlSuu = message.info.coords.lon;
+          window.GvWWq = message.info.fakeIt;
+        }
+        break;
+      default:
+        break;
+    }
+  }, false);
+  //]]>
+}OaMPN();})()</script>
+<!--  Created with the CoffeeCup HTML Editor 2005  --><!--           http://www.coffeecup.com/           --><!--        Brewed on 12/25/2004 1:30:40 PM        -->
+  <title>Monte Carlo Methods Theory</title>
+<script language="JavaScript">
+<!--hide from old browsers
+window.name = "umass_group_window";
+function back(){
+document.location = "http://mcwa.csi.cuny.edu/umass";
+return true;
+}
+//-->
+</script>
+
+<style type="text/css">
+.PublTable th
+{
+	color: #333333;
+	font-family: Helvetica; 
+	font-size: 22px;	
+	font-weight: bold;
+        text-align: center;	
+	background-color: #cccccc;
+}
+.PublTable td 
+{
+        color: #000000;
+        font-family: Luxi Mono;
+        font-size: 14px;
+        text-align: center;
+        background-color: #ffffff;
+}
+
+
+</style>
+
+</head>
+<body style="background-image: url(background_prova.jpg);">
+<img src="./Monte Carlo Methods Theory_files/button.php" width="180" height="24" onmouseover="this.src=&#39;button.php?text=Go Back&amp;back=lightblue&#39;" ;="" onmouseout="this.src=&#39;button.php?text=Go Back&amp;back=blue&#39;" onclick="document.location=&#39;http://mcwa.csi.cuny.edu/umass/group.html&#39;;">
+
+<h1 align="center"><img style="width: 148px; height: 109px;" alt="Quantum Monte-Carlo" src="./Monte Carlo Methods Theory_files/ru.jpg"><br>
+</h1>
+<center>
+<hr style="width: 100%; height: 4px;">
+</center>
+
+<table class="PublTable">
+
+<tbody><tr><th colspan="3">
+        2015
+</th></tr>
+
+<tr><td><b> •
+R. Rossi, F. Werner, N. V. Prokof'ev, and B. V. Svistunov
+</b></td><td>
+"Shifted-Action Expansion and Applicability of Dressed Diagrammatic Schemes"
+</td><td>
+arXiv:1508.03654
+</td></tr>
+
+
+<tr><td><b> •
+Y. Deng, E. Kozik, N. V. Prokof'ev, and B. V. Svistunov
+</b></td><td>
+" Emergent BCS Regime of the Two-dimensional Fermionic Hubbard model: Ground-state Phase Diagram"
+</td><td>
+ Euro. Phys. Lett. <b> 110</b>, 57001 (2015)
+</td></tr>
+
+<tr><th colspan="3">
+        2014
+</th></tr>
+
+<tr><td><b> •
+J. Gukelberger, E. Kozik, L. Pollet, N. Prokof'ev, M. Sigrist, B. Svistunov, and M. Troyer
+</b></td><td>
+"p-Wave Superfluidity by Spin-Nematic Fermi Surface Deformation"
+</td><td>
+ Phys. Rev. Lett. <b>113</b>, 195301 (2014)
+</td></tr>
+
+<tr><td><b> •
+A. S. Mishchenko, N. Nagaosa, and N.Prokof'ev
+</b></td><td>
+" Diagrammatic Monte Carlo Method for Many-Polaron Problems"
+</td><td>
+Phys. Rev. Lett. <b> 113</b>, 166402 (2014)
+</td></tr>
+
+<tr><td><b> •
+A. Safavi-Naini, B. Capogrosso-Sansone, A. Kuklov
+</b></td><td>
+" Quantum phases of hard-core dipolar bosons in coupled 1D optical lattices"
+</td><td>
+Phys. Rev. <b> A 90</b>, 043604 (2014)
+</td></tr>
+
+<tr><td><b> •
+L. Pollet, N. V. Prokof'ev, and B. V. Svistunov
+</b></td><td>
+"Asymptotically Exact Scenario of Strong-Disorder Criticality in One-Dimensional Superfluids"
+</td><td>
+Phys. Rev. <b>B 89</b>, 054204 (2014)
+</td></tr>
+
+<tr><td><b> •
+K. Chen, L. Liu, Y. Deng, L. Pollet, and N. Prokof'ev
+</b></td><td>
+ " Universal Conductivity in a Two-Dimensional Superfluid-to-Insulator Quantum Critical System"
+</td><td>
+ Phys. Rev. Lett. <b> 112</b>, 030402 (2014)
+</td></tr>
+
+<tr><td><b> •
+Zh. Yao, K. P. C. da Costa, M. Kiselev, and N. Prokof'ev
+</b></td><td>
+"Critical Exponents of the Superfluid-Bose-Glass Transition in Three Dimensions"
+</td><td>
+Phys. Rev. Lett. <b>112</b>, 225301 (2014)
+</td></tr>
+
+<tr><td><b> •
+L. Pollet and A. B. Kuklov
+</b></td><td>
+"Topological Quantum Phases of Helium-4 Confined to Nanoporous Materials"
+</td><td>
+Phys. Rev. Lett. <b> 113</b>, 045301 (2014)
+</td></tr>
+
+
+
+<tr><th colspan="3">
+        2013
+</th></tr>
+
+<tr><td><b> •
+N. V. Prokof'ev and B. V. Svistunov
+</b></td><td>
+" Spectral analysis by the method of consistent constraints"
+</td><td>
+ JETP Lett. <b> 97</b>, 649 (2013)
+</td></tr>
+
+<tr><td><b> •
+K. Chen, L. Liu, Y. Deng, L.Pollet, and N.Prokof'ev
+</b></td><td>
+"Universal Properties of the Higgs Resonance in (2+1)-Dimensional U(1) Critical Systems"
+</td><td>
+Phys. Rev. Lett. <b> 110</b>, 170403 (2013).
+</td></tr>
+
+<tr><td><b> •
+ N. Prokof'ev
+</b></td><td>
+" Diagrammatic Monte Carlo and Worm Algorithm techniques"
+</td><td>
+Chapter in " Strongly Correlated Systems:
+Numerical Methods", Eds: A. Avella and F. Mancini,
+Springer Series in Solid-State Sciences XXVIII, <b>176</b> (2013)
+</td></tr>
+
+<tr><td><b> •
+ L. Pollet, N. V. Prokof'ev, and B. V. Svistunov
+</b></td><td>
+" Classical-field renormalization flow of one-dimensional disordered bosons"
+</td><td>
+Phys. Rev. <b>B 87</b>, 144203 (2013)
+</td></tr>
+
+
+
+<tr><td><b> •
+S. Kulagin, N. Prokof'ev, O. Starykh, B. Svistunov, and C. N. Varney
+</b></td><td>
+"Bold diagrammatic Monte Carlo technique for frustrated spin systems"
+</td><td>
+Phys. Rev. <b>B 87</b>, 024407 (2013)
+</td></tr>
+
+<tr><td><b> •
+S. Kulagin, N. Prokof'ev, O. Starykh, B. Svistunov, and C. N. Varney
+</b></td><td>
+"Bold Diagrammatic Monte Carlo Applied to Fermionized Frustrated Spins"
+</td><td>
+ Phys. Rev. Lett. <b>110</b>, 070601 (2013).
+</td></tr>
+
+<tr><td><b> •
+K. Chen, Y. Huang, Y. Deng, A. B. Kuklov, N. V. Prokof'ev, and B. V. Svistunov
+</b></td><td>
+"Deconfined Criticality Flow in the Heisenberg Model with Ring-Exchange Interactions"
+</td><td>
+Phys. Rev. Lett. <b> 110 </b>, 185701 (2013).
+</td></tr>
+
+
+<tr><th colspan="3">
+        2012
+</th></tr>
+
+<tr><td><b> •
+K. Van Houcke, F. Werner, E. Kozik, N. Prokofev, B. Svistunov, M. Ku, A. Sommer, L. W. Cheuk, A. Schirotzek, and M. W. Zwierlein,
+</b></td>
+<td>
+" Feynman diagrams versus Feynman quantum emulator",
+</td><td><i>
+ Nature Physics, <b>8</b>, 366 (2012).
+</i></td></tr>
+
+<tr><td><b> •
+ A. M. Tsvelik and A. B. Kuklov
+</b></td>
+<td>
+" Parafermion excitations in superfluid of quasi-molecular chains"
+</td><td><i>
+ New J. Phys. <b>14</b>, 115033 (2012).
+</i></td></tr>
+
+<tr><td><b> •
+L. Pollet and N.V. Prokof'ev
+</b></td>
+<td>
+ "The Higgs Mode in a Two-Dimensional Superfluid"
+</td><td><i>
+ Phys. Rev. Lett.
+<b>109</b>, 010401 (2012).
+</i></td></tr>
+
+<tr><td><b> •
+M. Boninsegni, L. Pollet, N. Prokof'ev, and B. Svistunov
+</b></td>
+<td>
+" Role of Bose Statistics in Crystallization and Quantum Jamming"
+</td><td><i>
+ Phys. Rev. Lett. <b> 109</b>, 025302 (2012).
+</i></td></tr>
+
+<tr><th colspan="3">
+        2011
+</th></tr>
+
+
+<tr><td><b> •
+S. G. S\"oyler, M. Kiselev, N. V. Prokof'ev, B. V. Svistunov
+</b></td>
+<td>
+"Phase Diagram of Commensurate Two-Dimensional Disordered Bose Hubbard Model"
+</td><td><i>
+ Phys. Rev. Lett. <b>107</b>, 185301 (2011)
+</i></td></tr>
+
+<tr><td><b> •
+L. Pollet, N.V. Prokof'ev, and B.V. Svistunov
+</b></td>
+<td>
+" Incorporating Dynamic Mean-Field Theory into Diagrammatic Monte Carlo"
+</td><td><i>
+Phys. Rev. B, Rapid Comm. <b>83</b>, 161103 (2011).
+</i></td></tr>
+
+<tr><td><b> •
+D. Aleinikava and A. B. Kuklov
+</b></td>
+<td>
+"Interplay of non-linear elasticity and dislocation-induced superfluidity in solid 4He"
+,
+</td><td><i>
+J. Low Temp. Phys.  <b>169</b>, 133-148 (2012).
+(arXiv:1110.5884)
+</i></td></tr>
+
+
+
+
+
+<tr><td><b> •
+D. Aleinikava and A. B. Kuklov
+</b></td>
+<td>
+"The role of 3He impurities in the stress induced roughening of superclimbing dislocations in solid 4He"
+,
+</td><td><i>
+Journal of Physics: Conference Series <b>400</b>, 012036 (2012)
+ Proceedings of LT26, Beijing, 2011 (arXiv:1108.1182)
+</i></td></tr>
+
+
+
+
+<tr><td><b> •
+D. Aleinikava and A. B. Kuklov
+</b></td>
+<td>
+"Stress-Induced Dislocation Roughening: A Phase Transition in One Dimension at Finite Temperature"
+,
+</td><td><i>
+Phys. Rev. Lett. <b>106</b>, 235302 (2011); ( arXiv:1102.5522)
+</i></td></tr>
+
+
+
+<tr><td><b> •
+D. Aleinikava, E. Dedits and A. B. Kuklov
+</b></td>
+<td>
+"Glide and Superclimb of Dislocations in Solid 4He"
+,
+</td><td><i>
+JLTP <b>162</b> 464 (2011).(arXiv:1006.5228)
+</i></td></tr>
+
+
+
+
+<tr><td><b> •
+Barbara Capogrosso-Sansone and Anatoly Kuklov
+</b></td>
+<td>
+"Rough chains superfluidity in a polarized gas of dipolar molecules"
+,
+</td><td><i>
+JLTP  <b>165</b> Issue: 5-6 Special Issue: SI Pages: 213-226 (2011),
+Proceedings of the QFS2010 satellite conference "Cold Gases meet Many-Body Theory", Grenoble, August 7, 2010.; 
+arXiv:1101.1901
+</i></td></tr>
+
+
+
+
+<tr><td><b> •
+L. Pollet, N. V. Prokof'ev, and B. V. Svistunov
+</b></td>
+<td>
+"Incorporating Dynamic Mean-Field Theory into Diagrammatic Monte Carlo"
+,
+</td><td><i>
+Phys. Rev. B  <b>83</b>, 161103 (2011)
+</i></td></tr>
+
+
+
+
+<tr><td><b> •
+  N.  Prokof'ev and B. Svistunov
+</b></td>
+<td>
+"From Popov-Fedotov trick to  
+universal fermionization"
+,
+</td><td><i>
+Phys. Rev. <b>B 84</b>, 073102 (2011);
+arXiv:1103.3730
+</i></td></tr>
+
+
+
+
+<tr><th colspan="3">
+        2010
+</th></tr>
+
+<tr><td><b> •
+D. Aleinikava, E. Dedits, A. B. Kuklov and D. Schmeltzer
+</b></td>
+<td>
+"Dislocation roughening in quantum crystals"
+,
+</td><td><i>
+Europhysics Letters  <b>89</b>, 46002 (2010)
+</i></td></tr>
+
+
+
+<tr><td><b> •
+D.J.J. Marchand, G. De Filippis, V. Cataudella, M. Berciu, N. Nagaosa,  N.V. Prokof'ev, A.S. Mishchenko, P.C.E. Stamp
+</b></td>
+<td>
+"Sharp transition for single polarons in the one-dimensional Su-Schrieffer-Heeger model"
+,
+</td><td><i>
+Phys. Rev. Lett.  <b>105</b>, 266605 (2010)
+</i></td></tr>
+
+
+
+
+
+<tr><td><b> •
+ A. Filinov, N.V. Prokof'ev, and M. Bonitz
+</b></td>
+<td>
+"Berezinskii-Kosterlitz-Thouless transition in two-dimensional dipole systems"
+,
+</td><td><i>
+Phys. Rev. Lett.  <b>105</b>, 070401 (2010)
+</i></td></tr>
+
+
+
+
+<tr><td><b> •
+I.S. Tupitsyn, A. Kitaev, N.V. Prokof'ev, and P.C.E. Stamp
+</b></td>
+<td>
+"Topological multicritical point in the phase diagram of the toric code model and  three-dimensional lattice gauge Higgs model"
+,
+</td><td><i>
+Phys. Rev. B  <b>82</b>, 085114 (2010)
+</i></td></tr>
+
+
+
+<tr><td><b> •
+ S. Pilati, S. Giorgini, M. Modugno, and N. Prokof'ev
+</b></td>
+<td>
+"Dilute Bose gas with correlated disorder: A Path Integral Monte Carlo study"
+,
+</td><td><i>
+New J. Phys, <b>12</b>, 073003 (2010) [IOP Select Article]
+</i></td></tr>
+
+
+
+
+<tr><td><b> • 
+E. Kozik, K. Van Houcke, E. Gull, L. Pollet, N. Prokof'ev, B.  
+Svistunov, and M. Troyer
+</b></td>
+<td>
+"Diagrammatic Monte Carlo for correlated fermions"
+,
+</td><td><i>
+ EPL <b>90</b>, 10004 (2010); (arXiv:0907.0863)
+</i></td></tr>
+
+
+
+
+
+<tr><td><b> •
+N. Prokof'ev and B. Svistunov
+</b></td>
+<td>
+"Worm Algorithm for Problems of Quantum and Classical Statistics"
+,
+</td><td><i>
+chapter in the book: "Understanding Quantum Phase Transitions", 
+edited by Lincoln D. Carr (Taylor &amp; Francis, Boca Raton, 2010)
+</i></td></tr>
+
+
+
+
+<tr><td><b> • B. Capogrosso-Sansone, S. Giorgini, S. Pilati, L. Pollet, N. Prokof'ev, B. Svistunov, and M. Troyer
+</b></td>
+<td>"The Beliaev technique for a weakly interacting Bose gas",
+</td><td><i>
+New J. Phys.  <b>12</b>, 043010 (2010)
+</i></td></tr>
+
+
+<tr><td><b> •  B. Yucesoy, J. Machta,  N. V. Prokof'ev, and B.V. Svistunov
+</b></td><td> Comment on "Finite-Size Berezinskii-Kosterlitz-Thouless Transition at Grain Boundaries in Solid He-4 and the Role of He-3 Impurities",
+</td><td><i>
+Phys. Rev. Lett.  <b>104</b>, 049601 (2010)
+</i></td></tr>
+
+
+
+<tr><td><b> •  B. Capogrosso-Sansone, S.G. Soyler, N. V. Prokof'ev, and B.V. Svistunov
+</b></td><td> "Critical entropies for magnetic ordering in bosonic mixtures on a lattice",
+</td><td><i>
+Phys. Rev. A  <b>81</b>, 053622 (2010)
+</i></td></tr>
+
+
+
+<tr><td><b> •   L. Pollet, N. V. Prokof'ev, and B.V. Svistunov
+</b></td><td> "Criticality in Trapped Atomic Systems",
+</td><td><i>
+Phys. Rev. Lett.  <b>104</b>, 245705 (2010)
+</i></td></tr>
+
+
+
+<tr><td><b> • S. Trotzky, L. Pollet, F. Gerbier, U. Schnorrberger, I. Bloch, N.V. Prokov'ev, B. Svistunov, and M. Troyer
+</b></td><td> "Suppression of the critical temperature for superfluidity near the Mott transition: validating a quantum simulator",
+</td><td><i>
+Nature Physics  <b>6</b>, 998-1004  (2010); (arXiv:0905.4882)
+</i></td></tr>
+
+
+
+
+<tr><td><b> •   L. Pollet, N. V. Prokof'ev, and B.V. Svistunov
+</b></td><td> Comment on ``Direct  
+Mapping of the Finite Temperature Phase Diagram of Strongly Correlated
+Quantum Models",
+</td><td><i>
+Phys. Rev. Lett.  <b>105</b>, 199601 (2010)
+</i></td></tr>
+
+
+
+
+
+<tr><td><b> •   L. Pollet, N. V. Prokof'ev, and B.V. Svistunov
+</b></td><td> "Regularization of Diagrammatic Series with Zero Convergence Radius",
+</td><td><i>
+Phys. Rev. Lett.  <b>105</b>, 210601 (2010)
+</i></td></tr>
+
+
+
+<tr><th colspan="3">
+        2009
+</th></tr>
+
+<tr><td><b> •B.V. Svistunov
+</b></td><td> "Supersolidity of helium-4: Disordered scenarios"
+</td><td><i>
+Physica B.  <b>404</b>, 521-523 (2009)
+</i></td></tr>
+
+
+
+
+
+<tr><td><b> •S.G. Soyler, A.B. Kuklov, L. Pollet, N.V. Prokof'ev, B.V. Svistunov, 
+</b></td><td> "Underlying Mechanism for the Giant Isochoric Compressibility of  Solid He-4: Superclimb of Dislocations", 
+</td><td><i>
+Phys. Rev. Lett. <b>103</b>, 175301
+</i></td></tr>
+
+
+<!--<tr><td><b> &#149;E. Kozik, K. Van Houcke, E. Gull, L. Pollet, N. Prokof'ev, B. Svistunov, and M. Troyer
+</b></td><td> "Diagrammatic Monte Carlo for the Hubbard Model", 
+</td><td><i>
+arXiv:0907.0863
+</i></td></tr>
+-->
+
+<tr><td><b> •S.G. Soyler, B. Capogrosso-Sansone, N.V. Prokof'ev, and B.V. Svistunov
+</b></td><td> "Sign-Alternating Interaction Mediated by Strongly-Correlated Lattice Bosons", 
+</td><td><i>
+New J. Phys. <b>11</b>,  073036 (2009).
+</i></td></tr>
+
+
+<!--<tr><td><b> &#149;S. Trotzky, L. Pollet, F. Gerbier, U. Schnorrberger, I. Bloch, N.V. Prokov'ev, B. Svistunov, and M. Troyer
+</b></td><td> "Suppression of the critical temperature for superfluidity near the Mott transition: validating a quantum simulator",
+</td><td><i>
+arXiv:0905.4882
+</i></td></tr>
+-->
+
+<tr><td><b> •L. Pollet, N.V. Prokof'ev, B. V. Svistunov, and M. Troyer
+</b></td><td> "Absence of a Direct Superfluid to Mott Insulator Transition in Disordered Bose Systems",
+</td><td><i>
+Phys. Rev. Lett. <b>103</b>, 140402 (2009).
+</i></td></tr>
+
+
+<tr><td><b> •V. Gurarie, L. Pollet,  N.V. Prokof'ev, B.V. Svistunov, and M. Troyer
+</b></td><td> "Phase diagram of the disordered Bose-Hubbard model",
+</td><td><i>
+Phys. Rev. B <b>80</b> 214519 (2009); (arXiv:0909.4593)
+</i></td></tr>
+
+
+<tr><td><b> •S. Pilati, S. Giorgini, and N. Prokof'ev
+</b></td><td> "Superfluid transition in a Bose gas with correlated disorder",
+</td><td><i>
+Phys. Rev Lett.  <b>102</b>, 150402 (2009).
+</i></td></tr>
+
+
+
+<tr><th colspan="3">
+        2008
+</th></tr>
+<tr><td><b> • N. Prokof'ev, and B. Svistunov, 
+</b></td><td> "Fermi-polaron problem: Diagrammatic Monte Carlo method for divergent sign-alternating series", 
+</td><td><i>
+Phys. Rev. B <b>77</b>, 020408 (2008).
+</i></td></tr>
+
+
+<tr><td><b> •B. Capogrosso-Sansone, G. Soyler, N.V. Prokof'ev, and B.V. Svistunov,
+</b></td><td> "Monte Carlo study of two-dimensional Bose-Hubbard model", 
+</td><td><i>
+Phys. Rev. A <b>77</b>, 015602 (2008).
+</i></td></tr>
+
+<tr><td><b> •N. Prokof'ev and  B. Svistunov,
+        </b></td><td> "Bold diagrammatic Monte Carlo: A generic sign-problem tolerant technique for polaron models and possibly interacting many-body problems", 
+</td><td><i>
+Phys. Rev. B <b>77</b>, 125101 (2008).
+</i></td></tr>
+
+
+<tr><td><b> •S. Pilati, S. Giorgini, and N. Prokof'ev,
+        </b></td><td> "Critical Temperature of Interacting Bose Gases in Two and Three Dimensions", 
+</td><td><i>
+Phys. Rev. Lett. <b>100</b>, 140405 (2008).
+</i></td></tr>
+
+
+<tr><td><b> •Massimo Boninsegni and Nikolay V. Prokof'ev, 
+        </b></td><td> "Phase diagram of an anisotropic bosonic t-J model",  
+</td><td><i>
+Phys. Rev. B <b>77</b>, 092502 (2008).
+</i></td></tr>
+
+
+<tr><td><b> •K. Van Houcke, E. Kozik, N. Prokof'ev, and B. Svistunov,
+        </b></td><td> "Diagrammatic Monte Carlo",  
+</td><td><i>
+arXiv:0802.2923 [to appear in: Computer Simulation Studies in Condensed Matter Physics XXI, Eds. D.P. Landau, S.P. Lewis, and H.B. Schuttler (Springer Verlag, Heidelberg, Berlin 2008)]. 
+</i></td></tr>
+
+<tr><td><b> •E. Burovski, E. Kozik, N. Prokof'ev, B. Svistunov, and M. Troyer, 
+        </b></td><td> "Critical Temperature Curve in the BEC-BCS Crossover",  
+</td><td><i>
+Phys. Rev. Lett. <b>101</b>, 090402 (2008).
+</i></td></tr>
+
+
+<tr><td><b> •L. Pollet, M. Boninsegni, A.B. Kuklov, N.V. Prokofev, B.V. Svistunov, and M. Troyer,   
+        </b></td><td> "Local Stress and Superfluid Properties of Solid Helium-4",  
+</td><td><i>
+Phys. Rev. Lett. <b>101</b>, 097202 (2008).
+</i></td></tr>
+
+<tr><td><b> •L. Pollet, M. Boninsegni, A.B. Kuklov, N.V. Prokofev, B.V. Svistunov, and M. Troyer,   
+        </b></td><td> "Publishers Note: Local Stress and Superfluid Properties of Solid Helium-4",  
+</td><td><i>
+Phys. Rev. Lett. <b>101</b>, 269901 (2008).
+</i></td></tr>
+
+
+
+<tr><td><b> •A.B. Kuklov, M. Matsumoto, N.V. Prokof'ev, B.V. Svistunov, and M. Troyer, 
+        </b></td><td>"Deconfined criticality: generic first-order transition in the SU(2) symmetry case",</td><td><i>
+Phys. Rev Lett. <b>101</b>, 050405 (2008).
+</i></td></tr>
+
+
+<tr><td><b> •P. Corboz, L. Pollet, N. V. Prokof'ev, and M. Troyer,
+        </b></td><td>"Binding of a 3He impurity to a screw dislocation in solid 4He",</td><td><i>
+Phys. Rev. Lett. <b>101</b>, 155302 (2008).
+</i></td></tr>
+
+
+<tr><td><b> •D. Aleinikava, E. Dedits, A. B. Kuklov, and D. Schmeltzer,
+        </b></td><td>"Mechanical and superfluid properties of dislocations in solid He4",</td><td><i>
+arXiv:0812.0983
+</i></td></tr>
+
+
+<tr><td><b> •F. Gerbier, S. Trotzky, S. Foelling, U. Schnorrberger, J. D. Thompson, A. Widera, I. Bloch, L. Pollet, M. Troyer, B. Capogrosso-Sansone, N.V. Prokof'ev, and B.V. Svistunov,
+        </b></td><td>"Expansion of a Quantum Gas Released from an Optical Lattice",</td><td><i>
+Phys. Rev. Lett. <b>101</b>, 155303 (2008).
+</i></td></tr>
+
+
+
+
+<tr><th colspan="3">
+2007
+</th></tr>
+
+<tr><td><b> • B. Capogrosso-Sansone, E. Kozik, N. Prokof'ev, and B.
+Svistunov, 
+</b></td><td> "On-site number statistics of ultracold lattice
+bosons", 
+</td><td><i>
+Phys. Rev. A 75, 013619 (2007).
+</i></td></tr>
+
+<tr><td><b>  • B. Capogrosso-Sansone, N. V. Prokof'ev, and B. V. Svistunov,
+</b></td><td> "Phase diagram and thermodynamics of the three-dimensional
+Bose-Hubbard model", 
+</td><td><i>
+Phys. Rev. B 75, 134302 (2007).
+</i></td></tr>
+
+<tr><td><b> • L. Pollet, M. Boninsegni, A. B. Kuklov, N. V. Prokof'ev, B.
+V. Svistunov, and M. Troyer, 
+</b></td><td> "Superfluidity of Grain
+Boundaries in Solid Helium-4", 
+</td><td><i>
+Phys. Rev. Lett. 98, 135301(2007).
+</i></td></tr>
+
+<tr><td><b> •  M. Boninsegni, A. B. Kuklov, L. Pollet, N. V. Prokofev, B.
+V. Svistunov, and M. Troyer, 
+</b></td><td> "Luttinger Liquid in the Core of
+a Screw Dislocation in Helium-4", 
+</td><td><i>
+Phys. Rev. Lett. 99,035301 (2007).
+</i></td></tr>
+
+<tr><td><b> • G. Soyler, B. Capogrosso-Sansone, N.V. Prokof'ev, and B.V.
+Svistunov, 
+</b></td><td> "Superfluid-Insulator and Roughening Transitions in
+Domain Walls", 
+</td><td><i>
+Phys. Rev. A 76, 043628 (2007).
+</i></td></tr>
+
+<tr><td><b>  • N. Prokof'ev, and B. Svistunov, 
+</b></td><td> "Bold Diagrammatic
+Monte Carlo: When Sign Problem is Welcome", 
+</td><td><i>
+Phys. Rev. Lett. 99, 250201 (2007).
+</i></td></tr>
+
+<tr><td><b>  •H. P. Buchler, E. Demler, M. Lukin, A. Micheli, N. Prokof'ev, G. Pupillo, and P. Zoller, 
+        </b></td><td> "Strongly Correlated 2D Quantum Phases with Cold Polar Molecules: Controlling the Shape of the Interaction Potential", 
+</td><td><i>
+Phys. Rev. Lett. 98, 060404 (2007).
+</i></td></tr>
+
+<tr><th colspan="3">
+2006
+</th></tr>
+
+<tr><td><b> • E. Burovski, N. Prokof'ev, B. Svistunov, and M. Troyer,
+</b></td><td> "Critical Temperature and Thermodynamics of Attractive 
+Fermions at Unitarity", 
+</td><td><i>
+Phys. Rev. Lett. 96, 160402 (2006).
+</i></td></tr>
+
+<tr><td><b> • E. Burovski, N. Prokof'ev, B. Svistunov, and M. Troyer,
+</b></td><td> "The Fermi-Hubbard model at unitarity", 
+</td><td><i> New J. Phys. 8,
+153 (2006).
+</i></td></tr>
+
+<tr><td><b> • M. Boninsegni, N. V. Prokof´ev, B. V. Svistunov, 
+</b></td><td>" Worm
+Algorithm and Diagrammatic Monte Carlo: A New Approach to
+Continuous-Space Path Integral Monte Carlo Simulations", 
+</td><td><i> Phys.
+Rev. E 74, 036701 (2006).
+</i></td></tr>
+
+<tr><td><b> • E. Burovski, J. Machta, N. Prokof´ev, and B. Svistunov, 
+</b></td><td> 
+"High-precision measurement of the thermal exponent for the
+three-dimensional XY universality class", 
+</td><td><i>
+Phys. Rev. B 74,
+132502 (2006).
+</i></td></tr>
+
+<tr><td><b> • N. Prokof´ev and B. Svistunov, </b></td><td> "Comment on "Hausdorff
+Dimension of Critical Fluctuations in Abelian Gauge Theories",
+</td><td><i>
+Phys. Rev. Lett. 96, 219701 (2006).
+</i></td></tr>
+
+<tr><td><b>
+• Massimo Boninsegni, Anatoly Kuklov, Lode Pollet, Nikolay Prokof´ev, 
+Boris Svistunov, Matthias Troyer,
+</b></td><td>
+"The fate of vacancy-induced supersolidity in 4He",
+</td><td><i>
+Phys. Rev. Lett. 97, 080401 (2006).
+</i></td></tr>
+
+<tr><td><b>
+• A.B. Kuklov, N.V. Prokof´ev, B.V. Svistunov and M. Troyer,
+</b></td><td>
+"Deconfined criticality, runaway flow in the
+two-component scalar electrodynamics and weak first-order superfluid-solid transitions",
+</td><td><i>
+Annals of Physics 321,1602 (2006).
+</i></td></tr>
+
+<!---
+
+<tr><td><b>
+&#149; A. B. Kuklov, N. V. Prokof'ev, B. V. Svistunov, and M. Troyer,
+</b></td>
+<td>
+"Deconfined criticality, runaway flow in the two-component scalar
+electrodynamics and weak first-order"
+</td><td><i>
+superfluid-solid transitions", cond-mat/0602466 (to appear in Annals of
+Physics).
+</i></td></tr>
+
+//-->
+
+<tr><td><b>
+• M. Boninsegni, N. V. Prokof´ev, and B. V. Svistunov,
+</b></td><td>
+"Superglass Phase of He-4",
+</td><td><i>
+Phys. Rev. Lett. 96, 105301 (2006).
+</i></td></tr>
+<tr><td><b>
+•  M. Boninsegni, N. V. Prokof´ev, and B. V. Svistunov,
+</b></td><td>
+"Worm Algorithm for Continuous-Space Path Integral Monte Carlo
+Simulations",
+</td><td><i>
+Phys. Rev. Lett. 96, 070601 (2006).
+</i></td></tr>
+
+<tr><td><b>
+• G. Pupillo, C. J. Williams, and N. V. Prokof´ev, 
+</b></td><td>
+"Effects of finite temperature on the Mott-insulator state",
+</td><td><i>
+Phys. Rev. A 73, 013408 (2006).
+</i></td></tr>
+
+<!---
+
+<tr><td><b>
+&#149; M. Boninsegni, A.B. Kuklov, L. Pollet, N. Prokof'ev, B. Svistunov, M. Troyer, 
+</b></td><td>
+"The fate of vacancy-induced supersolidity in 4He“,
+</td><td><i>
+cond-mat/0605627.
+</i></td></tr>
+
+//-->
+
+<tr><th colspan="3">
+2005
+</th></tr>
+
+<tr><td><b>
+A. B. Kuklov, N. V. Prokof'ev, and B. V. Svistunov, 
+</b></td><td>
+"Weak first-order superfluid-solid quantum transitions and deconfined criticality",  
+</td><td><i>
+Prog. of Theor. Phys. Suppl.  160, 337-350 (2005).
+</i></td></tr>
+
+<!---
+
+<tr><td><b>
+&#149; N. V. Prokof'ev, and B. V. Svistunov, 
+</b></td>
+
+<td>
+Comment on "Hausdorff Dimension
+of Critical Fluctuations in Abelian Gauge Theories",
+</td><td><i>
+cond-mat/0505020 (to appear in Phys. Rev. Lett.).
+</i></td></tr>
+
+//-->
+
+<tr><td><b>
+• K.G. Balabanyan, N.V. Prokof'ev, and B.V. Svistunov,
+</b></td><td>
+"Superfluid--Insulator Transition in Commensurate One-Dimensional
+Bosonic System with Off-Diagonal Disorder",
+</td><td><i>
+Phys. Rev. Lett. 95, 055701 (2005).
+</i></td></tr>
+<tr><td><b>
+• E. Bourovski, E. Kozik, A.B. Kuklov, N.V. Prokof'ev and B.V. Svistunov,
+</b></td><td>
+"Superfluid Interfaces in Quantum Solids", 
+</td><td><i>
+Phys. Rev. Lett. 94, 165301
+(2005).
+</i></td></tr>
+<tr><td><b>
+• N.V. Prokof'ev and B.V. Svistunov,
+</b></td><td> "Supersolid State of Matter", 
+</td><td><i>Phys.
+Rev. Lett. 94, 155302 (2005). 
+</i></td></tr>
+
+<tr><td><b>
+• V. M. Kaurov, A. B. Kuklov, and A. E. Meyerovich ,
+</b></td><td> " Drag Effect and Topological Complexes in Strongly Interacting Two-Component Lattice Superfluids", </td><td><i>Phys. Rev. Lett. 95, 090403 (2005) .
+</i></td></tr>
+
+<!---
+
+<tr><td><b>
+&#149; E. Burovski, J. Machta, N.Prokof'ev, B. Svistunov,
+</b></td><td> " High Precision Measurement of the Thermal Exponent for the three-dimensional XY Universality Class", </td><td><i>
+cond-mat/0507352.
+</i></td></tr>
+
+<tr><td><b>
+&#149;  <b> A.B. Kuklov, N.V. Prokof'ev, and  B.V. Svistunov, </b></td><td>
+       "Ginzburg-Landau-Wilson Aspect of Deconfined Criticality",</td><td>
+    <i>   submitted to  Phys. Rev Lett., (January 2005), cond-mat/0501052.
+</i></td></tr>
+
+//-->
+
+<tr><th colspan="3"> 2004 </th></tr>                                             <tr><td>
+<b> •  A.B. Kuklov, N.V. Prokof'ev, and  B.V. Svistunov, </b>
+</td><td>
+"Weak first-order superfluid--solid quantum phase transitions"
+</td><td>
+<i> Phys. Rev Lett., 93, 230402 (2004).
+</i></td></tr>
+<tr><td><b>                                                                     
+•    E. Bourovski, N.V. Prokof'ev and  B.V. Svistunov, 
+</b></td>
+<td>
+"Truncated-determinant diagrammatic  Monte Carlo for Fermions with Contact Interaction'',
+</td><td>
+<i> Phys. Rev.B 70, 193101 (2004).</i>
+</td></tr>
+
+<tr><td><b>                                                                     •  N.V. Prokof'ev, O. Ruebenacker,  and  B.V. Svistunov, 
+</b></td><td>
+"Weakly interacting Bose gas in the vicinity of the
+normal-fluid--superfluid transition'',
+</td><td><i>
+Phys. Rev.  A 69, 053625 (2004).
+</i></td></tr>
+<tr><td><b>                                                                     • A.B. Kuklov, N.V. Prokof'ev, and  B.V. Svistunov, 
+</b></td><td>
+"Superfluid-Superfluid Phase Transitions in Two-Component Bose Condensate'',
+</td><td>
+<i> Phys. Rev. Lett.,  92, 030403 (2004).
+</i></td></tr>
+<tr><td><b>                                                                     • N.V. Prokof'ev and  B.V. Svistunov, </b></td>
+<td>
+"Superfluid-Insulator Transition in Commensurate Disordered Bosonic Systems:
+Large-Scale Worm Algorithm Simulations'',
+</td><td>
+<i> Phys. Rev. Lett., 92, 015703 (2004).
+</i></td></tr>
+<tr><td><b>
+•   A.B. Kuklov, N.V. Prokof'ev, and  B.V. Svistunov, </b></td><td>
+"Commensurate Two-Component Bosons in Optical Lattice: Ground State Phase Diagram'',
+</td><td><i>
+Phys. Rev. Lett.,  92,  050402 (2004).
+</i></td></tr>
+
+<tr><th colspan="3"> 2003 </th></tr>
+
+<tr><td><b> • A.S. Mishchenko, N. Nagaosa, N.V. Prokof'ev,
+A. Sakamoto, and B.V. Svistunov, </b></td><td>
+ "Optical conductivity of the Frohlich polaron'',
+</td><td><i> Phys. Rev. Lett., 91, 236401 (2003). </i>
+</td></tr>
+
+<tr><td><b>
+•    N.V. Prokof'ev and  B.V. Svistunov,
+</b></td><td>
+Comment on "Phase Diagram of a Disordered Boson
+Hubbard Model in Two Dimensions'',
+</td><td>
+<i> cond-mat/0310251.
+</i></td></tr>
+
+
+
+<tr><td><b>
+• M.V. Mostovoy, D.I. Khomskii, J. Knoester, and N.V. Prokof'ev, </b>
+</td><td>
+"Frustrated Spin Model as a Hard-Sphere Liquid'',
+</td><td>
+<i> Phys. Rev. Lett. 90, 147203 (2003).</i>
+</td></tr>
+
+<tr><th colspan="3"> 2002 </th></tr>
+<tr><td><b>
+• N.V. Prokof'ev, and  B.V. Svistunov, </b>
+</td><td>
+"Two-Dimensional Weakly Interacting Bose Gas in the
+Fluctuation Region",
+</td><td>
+<i>  Phys. Rev. A, 66, 043608 (2002).</i>
+</td></tr>
+
+<tr><td><b>
+• V.A. Kashurnikov, N.V. Prokof'ev, and  B.V. Svistunov, </b>
+</td><td>
+"Revealing Superfluid--Mott-Insulator Transition in an  Optical Lattice",
+</td><td>
+<i>Phys. Rev. A 66, 031601(R), (2002).</i>
+</td></tr>
+
+<tr><td><b>
+• A.S. Mishchenko, N. Nagaosa, N.V. Prokof'ev, </b>
+</td><td>
+"Self-traping of polarons in the Rashba-Pekar model",
+</td><td>
+<i>Phys. Rev. B, 66, 020301 (2002). </i>
+</td></tr>
+
+<tr><th colspan="3"> 2001 </th></tr>
+
+<tr><td><b>
+•  N.V. Prokof'ev, O. Ruebenacker, and B.V. Svistunov,</b>
+</td><td>
+"Critical Point of a Weakly Interacting Two-Dimensional Bose Gas",
+</td><td>
+<i>  Phys. Rev. Lett.,  87, 270402, 2001.</i>
+</td></tr>
+
+<tr><td><b>
+•   E.A. Burovski, A.S. Mishchenko, N.V. Prokof'ev, and B.V. Svistunov,</b>
+</td><td>
+"Diagrammatic Quantum Monte Carlo for Two-Body Problem: Applied to Exitons",
+</td><td>
+<i>  Phys. Rev. Lett.,  87, 186402 (2001).</i>
+</td></tr>
+
+<tr><td><b>
+•  N.V. Prokof'ev and B.V. Svistunov,</b>
+</td><td>
+"Worm Algorithms for Classical Statistical Models",
+</td><td>
+<i>  Phys. Rev. Lett.,  87, 160601 (2001).</i>
+</td></tr>
+
+<tr><td><b>
+• V.A. Kashurnikov, N.V. Prokof'ev, and B.V. Svistunov,</b>
+</td><td>
+"Critical Temperature Shift in a Weakly Interacting Bose Gas",
+</td><td>
+<i>  Phys. Rev. Lett.,  87, 120402 (2001).</i>
+</td></tr>
+
+<tr><td><b>
+•  A.S. Mishchenko, N.V. Prokof'ev, and B.V. Svistunov, </b>
+</td><td>
+"Single Hole Spectral Function and Spin-charge Separation in the t-J Model",
+</td><td>
+<i> Phys. Rev. B,  64, 033101 (2001). </i>
+</td></tr>
+
+
+<tr><th colspan="3"> 2000 </th></tr>
+
+<tr><td><b>
+•  A.S. Mishchenko, N.V. Prokof'ev, A. Sakamoto, and B.V. Svistunov,</b>
+</td><td>
+"Diagrammatic Quantum Monte Carlo Study of the Fröhlich polaron",
+</td><td>
+<i> Phys. Rev. B,  62, 6317 (2000).</i>
+</td></tr>
+
+<tr><td><b>
+•  Yu. Kagan, V.A. Kashurnikov, A.A. Krasavin, N.V. Prokof'ev, and B.V. Svistunov,</b>
+</td><td>
+"Quasicondensation in 2D Interacting Bose Gas: Quantum Monte Carlo Study",
+</td><td>
+<i>  Phys. Rev. A,  61, 043608 (2000).</i>
+</td></tr>
+
+<tr><td><b>
+•  N.V. Prokof'ev and B.V. Svistunov,</b>
+</td><td>
+"Two Definitions of Superfluid Density",
+</td><td>
+<i>  Phys. Rev. B,  61, 11282 (2000).</i>
+</td></tr>
+
+<tr><th colspan="3"> 1999 </th></tr>
+
+<tr><td><b>
+•  N.V. Prokof'ev, B.V. Svistunov, and I.S. Tupitsyn  ,</b>
+</td><td>
+"Quantum Monte Carlo Scheme to Study Coherent Tunneling",
+</td><td>
+<i>  Phys. Rev. Lett.,  82, 5092 (1999).</i>
+</td></tr>
+
+<tr><td><b>
+• V.A. Kashurnikov, N.V. Prokof'ev, B.V. Svistunov, and M. Troyer,</b>
+</td><td>
+"Quantum Spin Chains in Magnetic Field",
+</td><td>
+<i>  Phys. Rev. B,  59, 1162 (1999).</i>
+</td></tr>
+
+<tr><th colspan="3"> 1998 </th></tr>
+
+<tr><td><b>
+• G. Goppert, H. Grabert, N.V. Prokof'ev,  and  B.V. Svistunov,</b>
+</td><td>
+"Effect of the Tunneling Conductance on the Coulomb Staircase",
+</td><td>
+<i> Phys. Rev. Lett., 81, 2324 (1998).</i>
+</td></tr>
+
+<tr><td><b>
+• N.V. Prokof'ev and  B.V. Svistunov,</b>
+</td><td>
+"Polaron Problem by Diagrammatic Quantum Monte Carlo",
+</td><td>
+<i> Phys. Rev. Lett., 81, 2514 (1998).</i>
+</td></tr>
+
+<tr><td><b>
+•  N.V. Prokof'ev and B.V. Svistunov,</b>
+</td><td>
+" Comment on "One-Dimensional Disordered Bosonic Hubbard Model: A Density-Matrix Renormalization Group Study'",
+</td><td>
+<i> Phys. Rev. Lett.,  80, 4355 (1998).</i>
+</td></tr>
+
+<tr><td><b>
+•  N.V. Prokof'ev, B.V. Svistunov, and I.S. Tupitsyn,</b>
+</td><td>
+"Exact, Complete, and Universal Continuous-Time Worldline Monte Carlo Approach to the Statistics of Discrete Quantum Systems",
+</td><td>
+<i> Zh. Eksp. Teor. Fiz.  114, 570 [Sov. Phys. JETP  87, 310] (1998).</i>
+</td></tr>
+
+<tr><td><b>
+•  N.V. Prokof'ev, B.V. Svistunov, and I.S. Tupitsyn,
+</b></td><td>
+"Worm Algorithm in the Quantum Monte Carlo simulations",
+</td><td><i> Phys. Lett. A,  238, 253 (1998).</i>
+</td></tr>
+
+<tr><th colspan="3"> 1996 </th></tr>
+
+<tr><td><b>
+•  N.V. Prokof'ev, B.V. Svistunov, and I.S. Tupitsyn,</b>
+</td><td>
+"Exact Quantum Monte Carlo Process for the Statistics of Discrete Systems",
+</td><td>
+<i> Pis'ma v Zh. Teor. Eksp. Fiz.  [JETP Lett.],  64, 853 (1996).</i>
+</td></tr>
+
+</tbody></table>                                     
+<hr style="width: 80%; height: 2px;">
+
+
+</body></html>
