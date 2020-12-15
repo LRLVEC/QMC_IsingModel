@@ -1,0 +1,112 @@
+\documentclass[12pt]{article}
+
+\usepackage[english]{babel}
+\usepackage{indentfirst}     %%%%%%%%%% 首段缩进
+\setlength{\parindent}{2em}  %%%%%%%%%% 段落缩进
+\usepackage{amsmath,amssymb,physics} 
+\usepackage{mathspec,xeCJK,type1cm}
+\usepackage{caption,graphicx,subfigure}
+\usepackage{titlesec}
+\usepackage{hologo}
+\usepackage{titletoc}
+\usepackage{titlesec} %自定义多级标题格式的宏包
+\usepackage[colorlinks=true,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{geometry}
+\usepackage{fancyhdr} %空一页
+\usepackage{cite}
+\usepackage{color}
+
+\setmainfont{Times New Roman}
+\setmathsfont{Times New Roman}
+
+\geometry{a4paper,left=3cm,right=2.5cm,top=2.0cm,bottom=2.0cm} %设置页边距
+%%%%%%%%%% 毕业论文字体
+\newcommand{\yihao}{\fontsize{26pt}{33pt}\selectfont}    %一号，1.25倍行距
+\newcommand{\xiaoer}{\fontsize{18pt}{27pt}\selectfont}    % 小二号, 1.5倍行距
+\newcommand{\erhao}{\fontsize{22pt}{28pt}\selectfont}          % 二号, 1.25倍行距
+\newcommand{\sanhao}{\fontsize{16pt}{24pt}\selectfont}        % 三号, 1.5倍行距
+\newcommand{\xiaosi}{\fontsize{12pt}{18pt}\selectfont}          % 小四号, 1.5倍行距
+\newcommand{\sihao}{\fontsize{14pt}{21pt}\selectfont}            % 四号, 1.5 倍行距
+\newcommand{\sihaoA}{\fontsize{14pt}{25pt}\selectfont}            % 四号, 25磅行间距
+\newcommand{\wuhao}{\fontsize{10.5pt}{15.75pt}\selectfont}   %五号，1.5倍行间距
+\newcommand{\hei}{\CJKfamily{hei}}         %, 黑体
+\newcommand{\song}{\CJKfamily{song}}    % 宋体
+%%%%%%%%%% 毕业论文字体
+
+%%%%%%%%%% 章节标题
+\titleformat{\section}[block]{\sanhao\bf}{\arabic{section}}{1em}{}[]
+\titleformat{\subsection}[block]{\sihao\bf}{\arabic{section}.\arabic{subsection}}{1em}{}[]
+\titleformat{\subsubsection}[block]{\xiaosi\bf}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}{1em}{}[]
+
+%%%%%%%%%% 章节标题
+
+%%%%%%%%%% Start TeXmacs macros,
+\newcommand{\asterisk}{\mathord{*}}
+\newcommand{\comma}{{,}}
+\newcommand{\exterior}{\wedge}
+\newcommand{\point}{.}
+\newcommand{\mathd}{\mathrm{d}}
+\newcommand{\tmem}[1]{{\em #1\/}}
+\newcommand{\tmmathbf}[1]{\ensuremath{\boldsymbol{#1}}}
+\newcommand{\tmop}[1]{\ensuremath{\operatorname{#1}}}
+%%%%%%%%%% End TeXmacs macros
+
+
+\title{\erhao The Monte Carlo Simulation of Ising Model}
+      \date{}
+      \author{\sihao Shixin Hu \qquad  2001110162}
+      
+      
+%%%%%%%%% ToC setting
+\titlecontents{section}
+[0cm]
+{\bf \sihao}%
+{\contentslabel{1.5em}}%
+{}%
+{\titlerule*[0.5pc]{$\cdot$}\contentspage}%
+
+\titlecontents{subsection}
+[1cm]
+{\sihao}%
+{\contentslabel{2em}}%
+{}%
+{\titlerule*[0.5pc]{$\cdot$}\contentspage}%
+\titlecontents{subsubsection}
+[2cm]
+{\xiaosi}%
+{\contentslabel{2.5em}}%
+{}%
+{\titlerule*[0.5pc]{$\cdot$}\contentspage}%              
+%%%%%%%%% ToC setting
+
+%%%%%%% Tiki package
+\usepackage{tikz}
+\usepackage{braids}
+\usepackage{xifthen}
+
+
+
+
+%%%%%%% math
+\usepackage{euscript}
+
+\newcommand\Cb            {\mathbb{C}}
+\newcommand\Nb            {\mathbb{N}}
+\newcommand\Pb            {\mathbb{P}}
+\newcommand\Rb            {\mathbb{R}}
+\newcommand\Zb            {\mathbb{Z}}
+
+\newcommand\CA           {\EuScript{A}}
+\newcommand\CB           {\EuScript{B}}
+\newcommand\CC           {\EuScript{C}}
+\newcommand\CD           {\EuScript{D}}
+\newcommand\CE          {\EuScript{E}}
+\newcommand\CF          {\EuScript{F}}
+\begin{document}
+	\maketitle
+	\noindent\hei\erhao[ABSTRACT]:\sanhao Ising model is one of the most important models in the field of statistical mechanics. Despite its simplicity, it shows plenty of rich physics such as critical phenomena, and its relation to $\mathbb{Z}_2$ gauge theory. In this project, we use numerical Monte Carlo method, including the classical Metropolis and the so-called Worm algorithm to simulate the transverse field Ising model(TFI) in different spatial dimensions to reveal its critical behavior, such as its phase transition temperature, some critical exponents, as well as its critical dimension necessary to make the spontaeneous symmetry breaking possible.
+	
+\clearpage
+\erhao\textbf{\section{Theoretical Introduction}}
+\sanhao 
+\end{document}
