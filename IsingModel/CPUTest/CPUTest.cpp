@@ -4,7 +4,13 @@
 #include <_Time.h>
 #include <_Bit.h>
 #include <random>
+#ifdef _WIN32
 #include <intrin.h>
+#define popc(x) popc(x)
+#else
+// #include <immintrin.h>
+#define popc(x) __builtin_popcount(x)
+#endif
 
 //dimension: 1+1
 //size: N=128
@@ -69,25 +75,25 @@ unsigned int FlipSpins(unsigned int* grid, unsigned int* tp, unsigned int X, uns
 		if (Ua == Ub)
 		{
 			unsigned int mask(0xffffffff);
-			mask >>= (31 - Db + Da);
+			mask >>= popc(31 - Db + Da);
 			mask <<= Da;
-			U += __popcnt(gridOrigin[Ua] & mask);
+			U += popc(gridOrigin[Ua] & mask);
 			tp[Ua] = gridOrigin[Ua] ^ mask;
 		}
 		else
 		{
 			unsigned int mask(0xffffffff);
 			mask <<= Da;
-			U += __popcnt(gridOrigin[Ua] & mask);
+			U += popc(gridOrigin[Ua] & mask);
 			tp[Ua] = gridOrigin[Ua] ^ mask;
 			for (unsigned int c0(Ua + 1); c0 < Ub; ++c0)
 			{
-				U += __popcnt(gridOrigin[c0]);
+				U += popc(gridOrigin[c0]);
 				tp[c0] = gridOrigin[c0] ^ 0xffffffff;
 			}
 			mask = 0xffffffff;
 			mask >>= (31 - Db);
-			U += __popcnt(gridOrigin[Ub] & mask);
+			U += popc(gridOrigin[Ub] & mask);
 			tp[Ub] = gridOrigin[Ub] ^ mask;
 		}
 	}
@@ -99,25 +105,25 @@ unsigned int FlipSpins(unsigned int* grid, unsigned int* tp, unsigned int X, uns
 			mask >>= (33 - Da + Db);
 			mask <<= (Db + 1);
 			mask = ~mask;
-			U += __popcnt(gridOrigin[Ua] & mask);
+			U += popc(gridOrigin[Ua] & mask);
 			tp[Ua] = gridOrigin[Ua] ^ mask;
 		}
 		else
 		{
 			unsigned int mask(0xffffffff);
 			mask <<= Da;
-			U += __popcnt(gridOrigin[Ua] & mask);
+			U += popc(gridOrigin[Ua] & mask);
 			tp[Ua] = gridOrigin[Ua] ^ mask;
 
 			mask = 0xffffffff;
 			mask >>= (31 - Db);
-			U += __popcnt(gridOrigin[Ub] & mask);
+			U += popc(gridOrigin[Ub] & mask);
 			tp[Ub] = gridOrigin[Ub] ^ mask;
 		}
 		for (unsigned int c0(Ua + 1); c0 < BrickNum + Ub; ++c0)
 		{
 			unsigned int p(c0 & BrickMinus1);
-			U += __popcnt(gridOrigin[p]);
+			U += popc(gridOrigin[p]);
 			tp[p] = gridOrigin[p] ^ 0xffffffff;
 		}
 	}
@@ -128,7 +134,7 @@ unsigned int SpinUpNum(unsigned int* grid, unsigned int X)
 	unsigned int a(0);
 	unsigned int* gridOrigin(grid + TSize * X);
 	for (unsigned int c0(0); c0 < BrickNum; ++c0)
-		a += __popcnt(gridOrigin[c0]);
+		a += popc(gridOrigin[c0]);
 	return a;
 }
 void CopySpins(unsigned int* grid, unsigned int* tp, unsigned int X, unsigned int t0, unsigned int t1)
@@ -171,7 +177,7 @@ void CreateDefects(unsigned int* grid, unsigned int* gridU)
 	float acceptance(PaTauA * expf(h * dtauM));
 	if (rd(mt) < acceptance)
 	{
-		memcpy(grid + TSize * Xi, grid, sizeof(tp));
+		CopySpins(grid, tp, Xi, Ti + 1, Tm);
 		gridU[Xi] += dtauM;
 	}
 	else Ti = -1;
@@ -191,7 +197,7 @@ void AnnihilateDefects(unsigned int* grid, unsigned int* gridU)
 		float acceptance(PaTauAInv * expf(h * dtauM));
 		if (rd(mt) < acceptance)
 		{
-			memcpy(grid + TSize * Xi, grid, sizeof(tp));
+			CopySpins(grid, tp, Xi, t0, t1);
 			gridU[Xi] += dtauM;
 		}
 	}
