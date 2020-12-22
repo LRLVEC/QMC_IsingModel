@@ -59,7 +59,7 @@ void ClearGrid(unsigned int* grid, unsigned int* gridU)
 	memset(gridU, 0, GridUSize);
 	Ti = -1;
 }
-//Flips spins in [t0, t1], t1 > t0;
+//Flips spins in [t0, t1];
 //make sure that 0 <= t0 < N, 0 <= t1 < N;
 //stores the result in tp, return the original U of flipped spins
 unsigned int FlipSpins(unsigned int* grid, unsigned int* tp, unsigned int X, unsigned int t0, unsigned int t1)
