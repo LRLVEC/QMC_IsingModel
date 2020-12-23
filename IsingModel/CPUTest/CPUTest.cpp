@@ -41,9 +41,13 @@ constexpr float APa(Pa);
 constexpr float APb(Pa + Pb);
 constexpr float APc0(Pa + Pb + Pc);
 
-constexpr float h(0.1);
+constexpr float h(0.5f);
 constexpr unsigned int tauA(10);//\tau_a
 constexpr unsigned int tauAD2(tauA / 2);//\dfrac{\tau_a}{2}
+constexpr unsigned int tauB(10);//\tau_b
+constexpr unsigned int tauBM1(tauB - 1);//\tau_b-1
+constexpr unsigned int tauBD2(tauB / 2);//\dfrac{\tau_b}{2}
+constexpr unsigned int tauBD2M1(tauBD2 - 1);//\dfrac{\tau_b}{2}-1
 constexpr unsigned int tauC(10);//\tau_c
 constexpr unsigned int tauCM1(tauC - 1);//\tau_c-1
 constexpr unsigned int tauCD2(tauC / 2);//\dfrac{\tau_c}{2}
@@ -59,9 +63,11 @@ std::uniform_int_distribution<unsigned int> rdint(0, N - 1);
 std::uniform_int_distribution<unsigned int> rdtauA(1, tauA);
 std::uniform_int_distribution<unsigned int> rdWorldLineDim(0, SpaceDim - 1);
 std::uniform_int_distribution<int> rdWorldLineDir(0, 1);
+//if return non-negetive, then plus 1 to make sure the result is in [-tauBD2, tauBD2)\{0}
+std::uniform_int_distribution<int> rdDeltaB(-tauBD2, tauBD2 - 2);
 //if return non-negetive, then plus 1 to make sure the result is in [-tauCD2, tauCD2)\{0}
-std::uniform_int_distribution<int> rdDelta(-tauCD2, tauCD2 - 2);
-std::uniform_int_distribution<int> rdDelta1(-tauCD2, tauCD2 - 1);
+std::uniform_int_distribution<int> rdDeltaC(-tauCD2, tauCD2 - 2);
+std::uniform_int_distribution<int> rdDeltaC1(-tauCD2, tauCD2 - 1);
 
 //Each Grid for each thread
 struct Grid
@@ -79,6 +85,9 @@ struct Grid
 
 	int Ti, Tm;//-1 means not created, does not need modulo
 	int Xi, Xm;
+
+	static unsigned int Rm;
+	static unsigned int rounds;
 
 	unsigned int tp0[BrickNum];
 	unsigned int tp1[BrickNum];
@@ -299,23 +308,53 @@ struct Grid
 		int dtauM(dt <= N - dt ? dt : N - dt);
 		if (dtauM <= tauAD2)
 		{
+			float acceptance(PaTauAInv);
 			unsigned int t0, t1;
-			if ((Ti > Tm) ^ (dt <= tauAD2))  t0 = Ti, t1 = Tm;
-			else t0 = Tm, t1 = Ti;
-			int dU(flipSpins(tp0, Xi & NMinus1, t0, t1));
-			dtauM -= 2 * dU;//variation of U
-			float acceptance(PaTauAInv * expf(h * dtauM));
+			if (dt)
+			{
+				if ((Ti > Tm) ^ (dt <= tauAD2))  t0 = Ti, t1 = Tm;
+				else t0 = Tm, t1 = Ti;
+				int dU(flipSpins(tp0, Xi & NMinus1, t0, t1));
+				dtauM -= 2 * dU;//variation of U
+				acceptance *= expf(h * dtauM);
+			}
 			if (rd(mt) < acceptance)
 			{
-				copySpins(tp0, Xi & NMinus1, t0, t1);
-				gridU[Xi & NMinus1] += dtauM;
+				if (dt)
+				{
+					copySpins(tp0, Xi & NMinus1, t0, t1);
+					gridU[Xi & NMinus1] += dtauM;
+				}
+				Ti = -1;
 			}
 		}
 	}
 	//move Tm
 	void moveMT()
 	{
-
+		unsigned int Tn;
+		unsigned int t0, t1;
+		int dd(rdDeltaB(mt));
+		if (dd >= 0)
+		{
+			dd++;
+			Tn = (Tm + dd) & NMinus1;
+			t0 = Tm, t1 = Tn;
+		}
+		else
+		{
+			Tn = (Tm + dd) & NMinus1;
+			t0 = Tn, t1 = Tm;
+		}
+		int dU(flipSpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1));
+		dd -= 2 * dU;//variation of U
+		float acceptance(expf(h * dd));
+		if (rd(mt) < acceptance)
+		{
+			copySpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1);
+			gridU[Xm & NMinus1] += dd;
+			Tm = Tn;
+		}
 	}
 	//insert a kink
 	void insertKink()
@@ -335,7 +374,7 @@ struct Grid
 			do
 			{
 				//choose a position which has no kink
-				dd0 = rdDelta(mt);
+				dd0 = rdDeltaC(mt);
 				if (dd0 >= 0)
 				{
 					dd0++;
@@ -383,7 +422,7 @@ struct Grid
 			do
 			{
 				//choose a position which has a kink
-				dd0 = rdDelta1(mt);
+				dd0 = rdDeltaC1(mt);
 				Tn = (Tm + dd0) & NMinus1;
 				if (dd0 >= 0)t0 = Tm, t1 = Tn;
 				else t0 = Tn, t1 = Tm;
@@ -415,36 +454,108 @@ struct Grid
 	//one step of operation
 	void operate()
 	{
-		if (Ti < 0)createDefects();
+		if (Ti < 0)
+		{
+			createDefects();
+			//printf("Create\t\t");
+		}
 		else
 		{
 			float r(rd(mt));
-			if (r <= APa && (Xi - Xm) & NMinus1)annihilateDefects();
-			else if (r <= APb)moveMT();
-			else if (r <= APc0)insertKink();
-			else deleteKink();
+			if (r <= APa && !((Xi - Xm) & NMinus1))
+			{
+				annihilateDefects();
+				rounds++;
+				Rm += (windingNumber() != 0);
+				//printf("Annihilate\t");
+			}
+			else if (r <= APb)
+			{
+				moveMT();
+				//printf("Move\t\t");
+			}
+			else if (r <= APc0)
+			{
+				insertKink();
+				//printf("Insert\t\t");
+			}
+			else
+			{
+				deleteKink();
+				//printf("Delete\t\t");
+			}
 		}
 	}
+	//wind number
+	unsigned int windingNumber()
+	{
+		return abs(Xi - Xm) / NMinus1;
+	}
 	//print one world line
-	void print(unsigned int X)
+	void print(unsigned int X)const
 	{
 		printBit(grid + X * BrickNum, N, 1);
 	}
+	//print the whole grid (1 + 1 dimension)
+	void print()const
+	{
+		for (unsigned int c0(0);c0 < N;++c0)
+			printBit(grid + c0 * BrickNum, N, 1);
+	}
+	//print debug info
+	void printDebug()
+	{
+		printf("Xi:%4d, Xm:%4d, Tm:%4u, Wind:%2u\n", Xi, Xm, Tm, windingNumber());
+	}
+	//print statistical results
+	static void printResults()
+	{
+		printf("Rounds:%4u, Rm:%4u, R:%.3f\n", rounds, Rm, float(Rm) / rounds);
+	}
+#undef get
+#undef set
 };
+
+unsigned int Grid::Rm = 0;
+unsigned int Grid::rounds = 0;
 
 int main()
 {
 	Grid grid;
+	Grid::Rm = 0;
+	Grid::rounds = 0;
 
-	grid.grid[0] = 643786034;
-	grid.grid[1] = 643786034;
-	grid.grid[2] = 643786034;
-	grid.grid[3] = 643786034;
-	grid.print(0);
-	grid.flipSpins(grid.tp0, 0, 5, 7);
-	grid.copySpins(grid.tp0, 0, 5, 7);
-	grid.print(0);
+	Timer timer;
 
-	int a(-1246);
-	printBit(&a, 32, 1);
+
+	for (unsigned int c0(0);c0 < 10000;++c0)
+		grid.operate();
+
+	timer.begin();
+	for (unsigned int c0(0);c0 < 1000000;++c0)
+		grid.operate();
+	timer.end();
+	timer.print();
+
+	Grid::printResults();
+	// for (unsigned int c0(0);c0 < 50;++c0)
+	// {
+	// 	printf("%u:\t", c0);
+	// 	for (unsigned int c1(0);c1 < 20000;++c1)
+	// 		grid.operate();
+	// 	grid.printDebug();
+	// }
+
+	// grid.grid[0] = 643786034;
+	// grid.grid[1] = 643786034;
+	// grid.grid[2] = 643786034;
+	// grid.grid[3] = 643786034;
+	// grid.print(0);
+	// grid.flipSpins(grid.tp0, 0, 77, 5);
+	// grid.copySpins(grid.tp0, 0, 77, 5);
+	// grid.print(0);
+
+	printf("\n");
+
+	// grid.print();
 }
