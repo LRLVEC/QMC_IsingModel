@@ -12,8 +12,8 @@
 #define popc(x) __builtin_popcount(x)
 #endif
 
-//dimension: 1+1
-//size: N=128
+//dimension: 1 + 1
+//size: N = 128
 //use int32 instead of int64 because CUDA's support for int64 is simulated
 
 
@@ -61,6 +61,7 @@ std::uniform_int_distribution<unsigned int> rdWorldLineDim(0, SpaceDim - 1);
 std::uniform_int_distribution<int> rdWorldLineDir(0, 1);
 //if return non-negetive, then plus 1 to make sure the result is in [-tauCD2, tauCD2)\{0}
 std::uniform_int_distribution<int> rdDelta(-tauCD2, tauCD2 - 2);
+std::uniform_int_distribution<int> rdDelta1(-tauCD2, tauCD2 - 1);
 
 //Each Grid for each thread
 struct Grid
@@ -83,7 +84,7 @@ struct Grid
 	unsigned int tp1[BrickNum];
 
 #define get(x, y) (((x) >> (y)) & 1)
-	// #define set(x) (center ^= (1u << (x)))
+#define set(x,y) ((x) ^= (1u << (y)))
 
 	Grid()
 		:
@@ -324,12 +325,12 @@ struct Grid
 		int Xn(Xm + (2 * dir - 1));//neighbour of Xm, new Xm
 		int Xk((dir ? Xm : Xn) & NMinus1);//choose the index of gridKinks
 		unsigned int Tn;//position of the add kink
-		//make sure that there is space for a new kink
 		unsigned int* origin(gridKinksOrigin(Xk, dim));
 		unsigned int t0, t1;
 		int dd0, dd1;
 		//kinks number in [Tm - tauCD2, Tm + tauCD2 - 1)
 		unsigned int kn(kinksNum(origin, (Tm - tauCD2) & NMinus1, (Tm + tauCD2M1) & NMinus1));
+		//make sure that there is space for a new kink
 		if (tauCM1 != kn - get(origin[Tm >> 5], Tm & 31))
 			do
 			{
@@ -358,6 +359,7 @@ struct Grid
 		{
 			copySpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1);
 			copySpins(tp1, Xn & NMinus1, (t0 + 1) & NMinus1, t1);
+			set(origin[Tn >> 5], Tn & 31);
 			gridU[Xm & NMinus1] += dd0;
 			gridU[Xn & NMinus1] += dd1;
 			Xm = Xn;
@@ -366,31 +368,61 @@ struct Grid
 	//delete a kink
 	void deleteKink()
 	{
-
+		int dim(rdWorldLineDim(mt));//which dimension that the movement takes 
+		int dir(rdWorldLineDir(mt));//direction of the movement, 0 means -1, 1 means 1
+		int Xn(Xm + (2 * dir - 1));//neighbour of Xm, new Xm
+		int Xk((dir ? Xm : Xn) & NMinus1);//choose the index of gridKinks
+		unsigned int Tn;//position of the add kink
+		unsigned int* origin(gridKinksOrigin(Xk, dim));
+		unsigned int t0, t1;
+		int dd0, dd1;
+		//kinks number in [Tm - tauCD2, Tm + tauCD2 - 1)
+		unsigned int kn(kinksNum(origin, (Tm - tauCD2) & NMinus1, (Tm + tauCD2M1) & NMinus1));
+		//make sure that n_k > 0
+		if (kn)
+			do
+			{
+				//choose a position which has a kink
+				dd0 = rdDelta1(mt);
+				Tn = (Tm + dd0) & NMinus1;
+				if (dd0 >= 0)t0 = Tm, t1 = Tn;
+				else t0 = Tn, t1 = Tm;
+			} while (!get(origin[Tn >> 5], Tn & 31));
+		else return;
+		float acceptance(kn * tauCInv);
+		if (dd0)
+		{
+			dd1 = dd0;
+			int dU0(flipSpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1));
+			dd0 -= 2 * dU0;//variation of U
+			int dU1(flipSpins(tp1, Xn & NMinus1, (t0 + 1) & NMinus1, t1));
+			dd1 -= 2 * dU1;//variation of U
+			acceptance *= expf(h * (dd0 + dd1));
+		}
+		if (rd(mt) < acceptance)
+		{
+			if (dd0)
+			{
+				copySpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1);
+				copySpins(tp1, Xn & NMinus1, (t0 + 1) & NMinus1, t1);
+				gridU[Xm & NMinus1] += dd0;
+				gridU[Xn & NMinus1] += dd1;
+			}
+			set(origin[Tn >> 5], Tn & 31);
+			Xm = Xn;
+		}
 	}
 	//one step of operation
 	void operate()
 	{
-		if (Ti < 0)
-		{
-			createDefects();
-		}
+		if (Ti < 0)createDefects();
 		else
 		{
 			float r(rd(mt));
 			if (r <= APa && (Xi - Xm) & NMinus1)annihilateDefects();
-			else if (r <= APb)
-			{
-				moveMT();
-			}
-			else if (r <= APc0)
-			{
-				insertKink();
-			}
-			else
-			{
-				deleteKink();
-			}
+			else if (r <= APb)moveMT();
+			else if (r <= APc0)insertKink();
+			else deleteKink();
 		}
 	}
 	//print one world line
