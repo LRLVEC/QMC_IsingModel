@@ -64,10 +64,10 @@ std::uniform_int_distribution<unsigned int> rdtauA(1, tauA);
 std::uniform_int_distribution<unsigned int> rdWorldLineDim(0, SpaceDim - 1);
 std::uniform_int_distribution<int> rdWorldLineDir(0, 1);
 //if return non-negetive, then plus 1 to make sure the result is in [-tauBD2, tauBD2)\{0}
-std::uniform_int_distribution<int> rdDeltaB(-tauBD2, tauBD2 - 2);
+std::uniform_int_distribution<int> rdDeltaB(-int(tauBD2), tauBD2 - 2);
 //if return non-negetive, then plus 1 to make sure the result is in [-tauCD2, tauCD2)\{0}
-std::uniform_int_distribution<int> rdDeltaC(-tauCD2, tauCD2 - 2);
-std::uniform_int_distribution<int> rdDeltaC1(-tauCD2, tauCD2 - 1);
+std::uniform_int_distribution<int> rdDeltaC(-int(tauCD2), tauCD2 - 2);
+std::uniform_int_distribution<int> rdDeltaC1(-int(tauCD2), tauCD2 - 1);
 
 //Each Grid for each thread
 struct Grid
@@ -499,7 +499,7 @@ struct Grid
 	//print the whole grid (1 + 1 dimension)
 	void print()const
 	{
-		for (unsigned int c0(0);c0 < N;++c0)
+		for (unsigned int c0(0); c0 < N; ++c0)
 			printBit(grid + c0 * BrickNum, N, 1);
 	}
 	//print debug info
@@ -528,11 +528,11 @@ int main()
 	Timer timer;
 
 
-	for (unsigned int c0(0);c0 < 10000;++c0)
+	for (unsigned int c0(0); c0 < 10000; ++c0)
 		grid.operate();
 
 	timer.begin();
-	for (unsigned int c0(0);c0 < 1000000;++c0)
+	for (unsigned int c0(0); c0 < 1000000; ++c0)
 		grid.operate();
 	timer.end();
 	timer.print();
