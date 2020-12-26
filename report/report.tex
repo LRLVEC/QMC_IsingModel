@@ -56,6 +56,41 @@
 \abstract{Ising model is one of the most important models in the field of statistical mechanics. Despite its simplicity, it shows plenty of rich physics such as critical phenomena, and its relation to $\mathbb{Z}_2$ gauge theory. In this project, we use numerical Monte Carlo method, including the classical Metropolis and the so-called Worm algorithm to simulate the transverse field Ising model (TFI) in different spatial dimensions to reveal its critical behavior, such as its phase transition temperature, some critical exponents, as well as its critical dimension necessary to make the spontaeneous symmetry breaking possible.}
 
 \section{Introduction}
+Ising model is one of the most fundamental model in statistical mechanics. The ferromagnetic transverse field Ising model hamiltonian is:
+\begin{equation}
+	H=-J\sum_{\langle ij\rangle}\sigma^z_i\sigma^z_j-h\sum_i\sigma_i^x
+\end{equation}
+where $\sigma_i^\alpha$ are the Pauli matrices representing the $\alpha$th component of the spin-1/2 on site $i$, and $J>0$. When $h=0$, correspongding to the classical Ising model, the eigenstates of this hamiltonian are simply the direct product of the $\sigma^z$ basis of all sites, and we can simply replace the Pauli matrices $\sigma_i^z$ by their eigenvalues, which are either 1 or -1. When we turn on the transverse field $h$, quantum effects come in the story, since there will be fluctuations around the $\sigma^z$ basis of the classical Ising model and basically the true eigenstates of the quantum Ising model with finite $h$ will be an entangled state. 
+
+One of the main aspects that make Ising model so important in statistical mechanics is its thermodynamic fluctuation, especially its behavior near criticality. For simplicity, we let $h=0$ and add a longitudinal field $h_z$ in the  discussion of thermodynaminc behavior, so the Hamiltonian becomes
+\begin{equation}
+	H=-J\sum_{\langle ij\rangle}\sigma^z_i\sigma^z_j-h_z\sum_i\sigma_i^z
+\end{equation}
+From statistical mechanics, we can easily write down its partition function, and use different methods to solve the problem (transfer matrix for dimension $d=1$, mean field for $d>1$, as well as various numerical methods). We take $d=2$ as an example to see its critical behavior. At first it has a finite critical temperature between paramagnetic phase at higher temperature and ferromagnetic phase at lower temperature:
+\begin{gather}
+	\sinh\left(\frac{2J}{T_c}\right)=1\\
+	T_c=\frac{2J}{\log(1+\sqrt{2})}
+\end{gather} 
+The phase transition corresponds to a $\mathbb{Z}_2$ symmetry breaking. Next we can get different physical quautities with respect to temperature:
+Magnetization:
+\begin{equation}
+	M=\langle\sigma_i^z\rangle\sim(T_c-T)^{\frac{1}{8}}
+\end{equation}
+Susceptibility:
+\begin{equation}
+	\chi=\frac{\partial M}{\partial h_z}\sim(T-T_c)^{-\frac{7}{4}}
+\end{equation}
+and so on. 
+
+In particular, the two-point correlation function $\Gamma(i-j)=\langle\sigma_i^z\sigma_j^z\rangle-\langle\sigma_i^z\rangle\langle\sigma_j^z\rangle$ behave differently at different temperature. When $T$ is away from $T_c$, the correlation function decay exponentially:
+\begin{equation}
+	\Gamma(i-j)\sim e^{\frac{|i-j|}{\xi(T)}}
+\end{equation}
+with correlation length $\xi(T)\sim\frac{1}{|T-T_c|}$. As $T\rightarrow T_c$, the correlation length diverges, and the correlation function behaves like
+\begin{equation}
+	\Gamma(i-j)\sim\frac{1}{|i-j|^{d-2+\eta}}
+\end{equation}
+and the power-law decay remind us that the critical point of Ising model can be related to some conformal field theory. The critical exponents are listed as figure 1.
 
 \section{Worm Algorithm}
 The Hamiltonian of quantum transverse-field Ising model can be written as
@@ -150,7 +185,7 @@ The worm algorithm can be concluded as Algorithm.~\ref{algorithm}, in which \tex
     \STATE initialization;
     \STATE thermalization;
     \LOOP
-      \IF {it is a  $\mathcal{Z}$ configuration}
+      \IF{it is a  $\mathcal{Z}$ configuration}
         \STATE compute statistical quantities of this configuration;
         \STATE choose the ``creating defects $(I, M)$'' operation;
       \ELSE
