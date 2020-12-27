@@ -13,10 +13,10 @@ layout(std430, binding = 1)buffer SpinsBuffer
 {
 	unsigned int spins[];
 };
-//layout(std430, binding = 2)buffer SpinKinksBuffer
-//{
-//	unsigned int spinKinks[];
-//};
+layout(std430, binding = 2)buffer SpinKinksBuffer
+{
+	unsigned int spinKinks[];
+};
 //layout(location = 1)in vec3 velocity;
 out vec4 fragColor;
 void main()
@@ -25,10 +25,14 @@ void main()
 	unsigned int id = gl_VertexID >> 1;
 	unsigned int T = id & NMinus1;
 	unsigned int X = id >> LogN;
+	unsigned int XMinus1 = (X + NMinus1) & NMinus1;
 	unsigned int offset = X * BrickNum;
+	unsigned int offset1 = XMinus1 * BrickNum;
 	unsigned int TAdd1 = (T + 1) & NMinus1;
 	if (get(spins[offset + (T >> 5)], T & 31) == 1 &&
-		get(spins[offset + (TAdd1 >> 5)], TAdd1 & 31) == 1)
+		get(spins[offset + (TAdd1 >> 5)], TAdd1 & 31) == 1 &&
+		!(get(spinKinks[offset + (T >> 5)], T & 31) == 1 &&
+			get(spinKinks[offset1 + (T >> 5)], T & 31) == 1))
 		fragColor = vec4(0.462f, 0.725f, 0.f, 1.f);
 	else
 		fragColor = vec4(0.f);

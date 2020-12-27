@@ -69,21 +69,37 @@ std::uniform_int_distribution<int> rdDeltaC(-int(tauCD2), tauCD2 - 2);
 std::uniform_int_distribution<int> rdDeltaC1(-int(tauCD2), tauCD2 - 1);
 
 //Each Grid for each thread
+//Each Grid for each thread
 struct Grid
 {
 	std::mt19937 mt;
+
+	enum OperationType
+	{
+		None,
+		Create,
+		Annihilate,
+		Move,
+		Insert,
+		Delete
+	};
 
 	//use pointer instead of multi-dimension array to simulate CUDA
 	unsigned int* grid;
 	//stores U
 	unsigned int* gridU;
 	//stores kink, gridKinks[z][y][x][dim][brick]=gridKinks[brick + BrickNum * (dim + SpaceDim * (x + N * (y + N * z)))],
+	//a kink of t = i is something between t = i and t = i + 1
 	unsigned int* gridKinks;
-	//stores kink num, gridKinksNum[z][y][x][dim]=gridKinks[dim + SpaceDim * (x + N * (y + N * z))],
-	//unsigned int* gridKinksNum;
+
+	//DFS traverse of the grid
+	unsigned int* gridTraverse;
+	unsigned int* gridKinksTraverse;
 
 	int Ti, Tm;//-1 means not created, does not need modulo
 	int Xi, Xm;
+
+	OperationType operation;
 
 	static unsigned int Rm;
 	static unsigned int rounds;
@@ -100,7 +116,10 @@ struct Grid
 		mt(time(nullptr)),
 		grid((unsigned int*)malloc(GridSize)),
 		gridU((unsigned int*)malloc(GridUSize)),
-		gridKinks((unsigned int*)malloc(GridKinksSize))
+		gridKinks((unsigned int*)malloc(GridKinksSize)),
+		gridTraverse((unsigned int*)malloc(GridSize)),
+		gridKinksTraverse((unsigned int*)malloc(GridKinksSize)),
+		operation(None)
 	{
 		clear();
 	}
@@ -109,6 +128,8 @@ struct Grid
 		free(grid);
 		free(gridU);
 		free(gridKinks);
+		free(gridTraverse);
+		free(gridKinksTraverse);
 	}
 	//Clear the grid to original state
 	void clear()
@@ -116,6 +137,8 @@ struct Grid
 		memset(grid, 0, GridSize);
 		memset(gridU, 0, GridUSize);
 		memset(gridKinks, 0, GridKinksSize);
+		memset(gridTraverse, 0, GridSize);
+		memset(gridKinksTraverse, 0, GridKinksSize);
 		Ti = -1;
 	}
 	inline unsigned int* gridKinksOrigin(unsigned int X, unsigned int dim)
@@ -286,6 +309,7 @@ struct Grid
 	//create defectes
 	void createDefects()
 	{
+		printf("Create\t\t");
 		Xi = Xm = rdint(mt);
 		Ti = rdint(mt);
 		int dtauM(rdtauA(mt));
@@ -298,14 +322,21 @@ struct Grid
 		{
 			copySpins(tp0, Xi, (Ti + 1) & NMinus1, Tm);
 			gridU[Xi] += dtauM;
-			printf("Create\t\taccepted\n");
-			print();
+			operation = Create;
+			printf("accepted\t");
+			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u\n", Xi, Xm, Ti, Tm);
 		}
-		else Ti = -1;
+		else
+		{
+			Ti = -1;
+			printf("denied\n");
+		}
 	}
 	//annihilate defectes
 	void annihilateDefects()
 	{
+		printf("Annihilate\t");
+		bool flag(false);
 		unsigned int dt(abs(Ti - Tm));
 		int dtauM(dt <= N - dt ? dt : N - dt);
 		if (dtauM <= tauAD2)
@@ -316,7 +347,7 @@ struct Grid
 			{
 				if ((Ti > Tm) ^ (dt <= tauAD2))  t0 = Ti, t1 = Tm;
 				else t0 = Tm, t1 = Ti;
-				int dU(flipSpins(tp0, Xi & NMinus1, t0, t1));
+				int dU(flipSpins(tp0, Xi & NMinus1, (t0 + 1) & NMinus1, t1));
 				dtauM -= 2 * dU;//variation of U
 				acceptance *= expf(h * dtauM);
 			}
@@ -324,20 +355,25 @@ struct Grid
 			{
 				if (dt)
 				{
-					copySpins(tp0, Xi & NMinus1, t0, t1);
+					copySpins(tp0, Xi & NMinus1, (t0 + 1) & NMinus1, t1);
 					gridU[Xi & NMinus1] += dtauM;
 				}
 				Ti = -1;
 				rounds++;
 				Rm += (windingNumber() != 0);
-				printf("Annihilate\taccepted\n");
-				print();
+				operation = Annihilate;
+				printf("accepted\t");
+				printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u\n", Xi, Xm, Ti, Tm);
+				flag = true;
 			}
 		}
+		if (!flag)printf("denied\n");
 	}
 	//move Tm
 	void moveMT()
 	{
+		printf("Move\t\t");
+		bool flag(false);
 		unsigned int Tn;
 		unsigned int t0, t1;
 		int dd(rdDeltaB(mt));
@@ -360,13 +396,18 @@ struct Grid
 			copySpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1);
 			gridU[Xm & NMinus1] += dd;
 			Tm = Tn;
-			printf("Move\t\taccepted\n");
-			print();
+			operation = Move;
+			printf("accepted\t");
+			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u\n", Xi, Xm, Ti, Tm);
+			flag = true;
 		}
+		if (!flag)printf("denied\n");
 	}
 	//insert a kink
 	void insertKink()
 	{
+		printf("Insert\t\t");
+		bool flag(false);
 		int dim(rdWorldLineDim(mt));//which dimension that the movement takes 
 		int dir(rdWorldLineDir(mt));//direction of the movement, 0 means -1, 1 means 1
 		int Xn(Xm + (2 * dir - 1));//neighbour of Xm, new Xm
@@ -387,36 +428,45 @@ struct Grid
 				{
 					dd0++;
 					Tn = (Tm + dd0) & NMinus1;
-					t0 = Tm, t1 = Tn;
+					t0 = (Tm + 1) & NMinus1, t1 = Tn;
 				}
 				else
 				{
 					Tn = (Tm + dd0) & NMinus1;
-					t0 = Tn, t1 = Tm;
+					t0 = (Tn + 1) & NMinus1, t1 = Tm;
 				}
 			} while (get(origin[Tn >> 5], Tn & 31));
-		else return;
+		else
+		{
+			printf("denied\n");
+			return;
+		}
 		dd1 = dd0;
-		int dU0(flipSpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1));
+		int dU0(flipSpins(tp0, Xm & NMinus1, t0, t1));
 		dd0 -= 2 * dU0;//variation of U
-		int dU1(flipSpins(tp1, Xn & NMinus1, (t0 + 1) & NMinus1, t1));
+		int dU1(flipSpins(tp1, Xn & NMinus1, t0, t1));
 		dd1 -= 2 * dU1;//variation of U
 		float acceptance((tauC * expf(h * (dd0 + dd1)) / (kn + 1)));
 		if (rd(mt) < acceptance)
 		{
-			copySpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1);
-			copySpins(tp1, Xn & NMinus1, (t0 + 1) & NMinus1, t1);
+			copySpins(tp0, Xm & NMinus1, t0, t1);
+			copySpins(tp1, Xn & NMinus1, t0, t1);
 			set(origin[Tn >> 5], Tn & 31);
 			gridU[Xm & NMinus1] += dd0;
 			gridU[Xn & NMinus1] += dd1;
 			Xm = Xn;
-			printf("Insert\t\taccepted\n");
-			print();
+			operation = Insert;
+			printf("accepted\t");
+			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
+			flag = true;
 		}
+		if (!flag)printf("denied\n");
 	}
 	//delete a kink
 	void deleteKink()
 	{
+		printf("Delete\t\t");
+		bool flag(false);
 		int dim(rdWorldLineDim(mt));//which dimension that the movement takes 
 		int dir(rdWorldLineDir(mt));//direction of the movement, 0 means -1, 1 means 1
 		int Xn(Xm + (2 * dir - 1));//neighbour of Xm, new Xm
@@ -424,7 +474,7 @@ struct Grid
 		unsigned int Tn;//position of the add kink
 		unsigned int* origin(gridKinksOrigin(Xk, dim));
 		unsigned int t0, t1;
-		int dd0, dd1;
+		int dd, dd0, dd1;
 		//kinks number in [Tm - tauCD2, Tm + tauCD2 - 1)
 		unsigned int kn(kinksNum(origin, (Tm - tauCD2) & NMinus1, (Tm + tauCD2M1) & NMinus1));
 		//make sure that n_k > 0
@@ -432,16 +482,20 @@ struct Grid
 			do
 			{
 				//choose a position which has a kink
-				dd0 = rdDeltaC1(mt);
-				Tn = (Tm + dd0) & NMinus1;
-				if (dd0 >= 0)t0 = Tm, t1 = Tn;
+				dd = rdDeltaC1(mt);
+				Tn = (Tm + dd) & NMinus1;
+				if (dd >= 0)t0 = Tm, t1 = Tn;
 				else t0 = Tn, t1 = Tm;
 			} while (!get(origin[Tn >> 5], Tn & 31));
-		else return;
-		float acceptance(kn * tauCInv);
-		if (dd0)
+		else
 		{
-			dd1 = dd0;
+			printf("denied\n");
+			return;
+		}
+		float acceptance(kn * tauCInv);
+		if (dd)
+		{
+			dd1 = dd0 = dd;
 			int dU0(flipSpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1));
 			dd0 -= 2 * dU0;//variation of U
 			int dU1(flipSpins(tp1, Xn & NMinus1, (t0 + 1) & NMinus1, t1));
@@ -450,7 +504,7 @@ struct Grid
 		}
 		if (rd(mt) < acceptance)
 		{
-			if (dd0)
+			if (dd)
 			{
 				copySpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1);
 				copySpins(tp1, Xn & NMinus1, (t0 + 1) & NMinus1, t1);
@@ -459,14 +513,18 @@ struct Grid
 			}
 			set(origin[Tn >> 5], Tn & 31);
 			Xm = Xn;
-			printf("Delete\t\taccepted\n");
-			print();
+			operation = Delete;
+			printf("accepted\t");
+			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
+			flag = true;
 		}
+		if (!flag)printf("denied\n");
 	}
 	//one step of operation
 	void operate()
 	{
 		steps++;
+		operation = None;
 		if (Ti < 0)
 		{
 			createDefects();
@@ -496,6 +554,11 @@ struct Grid
 	unsigned int windingNumber()
 	{
 		return abs(Xi - Xm) / NMinus1;
+	}
+	//traverse a grid
+	void traverse()
+	{
+
 	}
 	//print one world line
 	void print(unsigned int X)const
