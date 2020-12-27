@@ -23,11 +23,10 @@ constexpr unsigned int powd(unsigned int a, unsigned int n)
 	else return 1;
 }
 
-constexpr unsigned int N(128);
+constexpr unsigned int N(64);
 constexpr unsigned int NMinus1(N - 1);
 constexpr unsigned int BrickNum(N / 32);
 constexpr unsigned int BrickMinus1(BrickNum - 1);
-constexpr unsigned int LogN(5);
 constexpr unsigned int SpaceDim(1);
 constexpr unsigned int GridSize(powd(N, SpaceDim)* BrickNum * sizeof(unsigned int));
 constexpr unsigned int GridUSize(powd(N, SpaceDim) * sizeof(unsigned int));
@@ -41,7 +40,7 @@ constexpr float APa(Pa);
 constexpr float APb(Pa + Pb);
 constexpr float APc0(Pa + Pb + Pc);
 
-constexpr float h(0.5f);
+constexpr float h(0.1f);
 constexpr unsigned int tauA(10);//\tau_a
 constexpr unsigned int tauAD2(tauA / 2);//\dfrac{\tau_a}{2}
 constexpr unsigned int tauB(10);//\tau_b
@@ -88,6 +87,7 @@ struct Grid
 
 	static unsigned int Rm;
 	static unsigned int rounds;
+	static unsigned int steps;
 
 	unsigned int tp0[BrickNum];
 	unsigned int tp1[BrickNum];
@@ -298,6 +298,8 @@ struct Grid
 		{
 			copySpins(tp0, Xi, (Ti + 1) & NMinus1, Tm);
 			gridU[Xi] += dtauM;
+			printf("Create\t\taccepted\n");
+			print();
 		}
 		else Ti = -1;
 	}
@@ -326,6 +328,10 @@ struct Grid
 					gridU[Xi & NMinus1] += dtauM;
 				}
 				Ti = -1;
+				rounds++;
+				Rm += (windingNumber() != 0);
+				printf("Annihilate\taccepted\n");
+				print();
 			}
 		}
 	}
@@ -354,6 +360,8 @@ struct Grid
 			copySpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1);
 			gridU[Xm & NMinus1] += dd;
 			Tm = Tn;
+			printf("Move\t\taccepted\n");
+			print();
 		}
 	}
 	//insert a kink
@@ -402,6 +410,8 @@ struct Grid
 			gridU[Xm & NMinus1] += dd0;
 			gridU[Xn & NMinus1] += dd1;
 			Xm = Xn;
+			printf("Insert\t\taccepted\n");
+			print();
 		}
 	}
 	//delete a kink
@@ -449,15 +459,17 @@ struct Grid
 			}
 			set(origin[Tn >> 5], Tn & 31);
 			Xm = Xn;
+			printf("Delete\t\taccepted\n");
+			print();
 		}
 	}
 	//one step of operation
 	void operate()
 	{
+		steps++;
 		if (Ti < 0)
 		{
 			createDefects();
-			//printf("Create\t\t");
 		}
 		else
 		{
@@ -465,24 +477,18 @@ struct Grid
 			if (r <= APa && !((Xi - Xm) & NMinus1))
 			{
 				annihilateDefects();
-				rounds++;
-				Rm += (windingNumber() != 0);
-				//printf("Annihilate\t");
 			}
 			else if (r <= APb)
 			{
 				moveMT();
-				//printf("Move\t\t");
 			}
 			else if (r <= APc0)
 			{
 				insertKink();
-				//printf("Insert\t\t");
 			}
 			else
 			{
 				deleteKink();
-				//printf("Delete\t\t");
 			}
 		}
 	}
@@ -510,7 +516,8 @@ struct Grid
 	//print statistical results
 	static void printResults()
 	{
-		printf("Rounds:%4u, Rm:%4u, R:%.3f\n", rounds, Rm, float(Rm) / rounds);
+		printf("Rounds:%4u, Rm:%4u, R:%.3f, Steps Per Loop:%.3f\n",
+			rounds, Rm, float(Rm) / rounds, float(steps) / rounds);
 	}
 #undef get
 #undef set
@@ -518,18 +525,26 @@ struct Grid
 
 unsigned int Grid::Rm = 0;
 unsigned int Grid::rounds = 0;
+unsigned int Grid::steps = 0;
 
 int main()
 {
 	Grid grid;
+
 	Grid::Rm = 0;
 	Grid::rounds = 0;
+	Grid::steps = 0;
 
-	Timer timer;
-
-
-	for (unsigned int c0(0); c0 < 10000; ++c0)
+	while (!Grid::rounds)
 		grid.operate();
+	//grid.print();
+
+
+	/*Timer timer;
+
+	for (unsigned int c0(0); c0 < 100000; ++c0)
+		grid.operate();
+
 
 	timer.begin();
 	for (unsigned int c0(0); c0 < 1000000; ++c0)
@@ -537,7 +552,11 @@ int main()
 	timer.end();
 	timer.print();
 
-	Grid::printResults();
+	Grid::printResults();*/
+
+
+
+
 	// for (unsigned int c0(0);c0 < 50;++c0)
 	// {
 	// 	printf("%u:\t", c0);

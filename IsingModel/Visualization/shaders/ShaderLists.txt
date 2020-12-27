@@ -1,0 +1,20 @@
+Program:	SpinsRenderer
+{
+	Vertex		0
+	Fragment	0
+}
+Program:	SpinLinesRenderer
+{
+	Vertex		0
+	Fragment	0
+}
+Program:	KinkLinesRenderer
+{
+	Vertex		0
+	Fragment	0
+}
+Program:	EndPointsRenderer
+{
+	Vertex		0
+	Fragment	0
+}
