@@ -69,7 +69,6 @@ std::uniform_int_distribution<int> rdDeltaC(-int(tauCD2), tauCD2 - 2);
 std::uniform_int_distribution<int> rdDeltaC1(-int(tauCD2), tauCD2 - 1);
 
 //Each Grid for each thread
-//Each Grid for each thread
 struct Grid
 {
 	std::mt19937 mt;
@@ -145,7 +144,38 @@ struct Grid
 	{
 		return gridKinks + BrickNum * (dim + SpaceDim * X);
 	}
-	//Flips spins in [t0, t1], t1 > t0;
+	//logic or on section [t0, t1] in different lins of gridKinks, stores in tp0
+	void kinksLogicOr(int Xk, int Xk1, int Xk2, unsigned int t0, unsigned int t1)
+	{
+		unsigned int* origin(gridKinksOrigin(Xk, 0));
+		unsigned int* origin1(gridKinksOrigin(Xk1, 0));
+		unsigned int* origin2(gridKinksOrigin(Xk2, 0));
+		unsigned int Ua(t0 >> 5);
+		unsigned int Ub(t1 >> 5);
+		if (t0 <= t1)
+		{
+			tp0[Ua] = origin[Ua] | origin1[Ua] | origin2[Ua];
+			if (Ua != Ub)
+			{
+				tp0[Ua] = origin[Ua] | origin1[Ua] | origin2[Ua];
+				for (unsigned int c0(Ua + 1); c0 < Ub; ++c0)
+					tp0[c0] = origin[c0] | origin1[c0] | origin2[c0];
+				tp0[Ub] = origin[Ub] | origin1[Ub] | origin2[Ub];
+			}
+		}
+		else
+		{
+			tp0[Ua] = origin[Ua] | origin1[Ua] | origin2[Ua];
+			if (Ua != Ub)
+				tp0[Ub] = origin[Ub] | origin1[Ub] | origin2[Ub];
+			for (unsigned int c0(Ua + 1); c0 < BrickNum + Ub; ++c0)
+			{
+				unsigned int p(c0 & BrickMinus1);
+				tp0[p] = origin[p] | origin1[p] | origin2[p];
+			}
+		}
+	}
+	//Flips spins in [t0, t1];
 	//make sure that 0 <= t0 < N, 0 <= t1 < N;
 	//stores the result in tp, return the original U of the flipped spins
 	unsigned int flipSpins(unsigned int* tp, unsigned int X, unsigned int t0, unsigned int t1)
@@ -224,10 +254,9 @@ struct Grid
 		unsigned int Ub(t1 >> 5);
 		if (t0 <= t1)
 		{
-			if (Ua == Ub)gridOrigin[Ua] = tp[Ua];
-			else
+			gridOrigin[Ua] = tp[Ua];
+			if (Ua != Ub)
 			{
-				gridOrigin[Ua] = tp[Ua];
 				for (unsigned int c0(Ua + 1); c0 < Ub; ++c0)
 					gridOrigin[c0] = tp[c0];
 				gridOrigin[Ub] = tp[Ub];
@@ -520,6 +549,81 @@ struct Grid
 		}
 		if (!flag)printf("denied\n");
 	}
+	//insert a kink (two neighbour kinks cannot have the same t)
+	void insertKinkLimited()
+	{
+		printf("InsertLimited\t");
+		bool flag(false);
+		int dim(rdWorldLineDim(mt));//which dimension that the movement takes 
+		int dir(rdWorldLineDir(mt));//direction of the movement, 0 means -1, 1 means 1
+		int Xn(Xm + (2 * dir - 1));//neighbour of Xm, new Xm
+		int Xk, Xk1, Xk2;
+		if (dir)
+		{
+			Xk = Xm & NMinus1;
+			Xk1 = Xn & NMinus1;
+			Xk2 = (Xm + NMinus1) & NMinus1;
+		}
+		else
+		{
+			Xk = Xn & NMinus1;
+			Xk1 = Xm & NMinus1;
+			Xk2 = (Xn + NMinus1) & NMinus1;
+		}
+		unsigned int Tn;//position of the add kink
+		unsigned int tb((Tm - tauCD2) & NMinus1), te((Tm + tauCD2M1) & NMinus1);
+		kinksLogicOr(Xk, Xk1, Xk2, tb, te);
+		unsigned int t0, t1;
+		int dd0, dd1;
+		unsigned int* origin(gridKinksOrigin(Xk, dim));
+		unsigned int kn(kinksNum(tp0, tb, te));
+		//kinks number in [Tm - tauCD2, Tm + tauCD2 - 1)
+		unsigned int nk(kinksNum(origin, tb, te));
+		//make sure that there is space for a new kink
+		if (tauCM1 != kn - get(tp0[Tm >> 5], Tm & 31))
+			do
+			{
+				//choose a position which has no kink
+				dd0 = rdDeltaC(mt);
+				if (dd0 >= 0)
+				{
+					dd0++;
+					Tn = (Tm + dd0) & NMinus1;
+					t0 = (Tm + 1) & NMinus1, t1 = Tn;
+				}
+				else
+				{
+					Tn = (Tm + dd0) & NMinus1;
+					t0 = (Tn + 1) & NMinus1, t1 = Tm;
+				}
+			} while (get(tp0[Tn >> 5], Tn & 31));
+		else
+		{
+			printf("denied\n");
+			return;
+		}
+		dd1 = dd0;
+		int dU0(flipSpins(tp0, Xm & NMinus1, t0, t1));
+		dd0 -= 2 * dU0;//variation of U
+		int dU1(flipSpins(tp1, Xn & NMinus1, t0, t1));
+		dd1 -= 2 * dU1;//variation of U
+		//still nk because the delete operation doesn't check the other two kink lines
+		float acceptance((tauC * expf(h * (dd0 + dd1)) / (nk + 1)));
+		if (rd(mt) < acceptance)
+		{
+			copySpins(tp0, Xm & NMinus1, t0, t1);
+			copySpins(tp1, Xn & NMinus1, t0, t1);
+			set(origin[Tn >> 5], Tn & 31);
+			gridU[Xm & NMinus1] += dd0;
+			gridU[Xn & NMinus1] += dd1;
+			Xm = Xn;
+			operation = Insert;
+			printf("accepted\t");
+			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
+			flag = true;
+		}
+		if (!flag)printf("denied\n");
+	}
 	//one step of operation
 	void operate()
 	{
@@ -542,7 +646,7 @@ struct Grid
 			}
 			else if (r <= APc0)
 			{
-				insertKink();
+				insertKinkLimited();
 			}
 			else
 			{
