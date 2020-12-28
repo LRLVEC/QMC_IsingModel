@@ -696,14 +696,22 @@ unsigned int Grid::steps = 0;
 
 int main()
 {
-	Grid grid;
+	std::mt19937 mt(time(nullptr));
+	int s(0);
+	for (unsigned int c0(0); c0 < 10000; ++c0)
+	{
+		int d(rdDeltaC1(mt));
+		if (d >= 0)d++;
+		printf("%d\n", s += d);
+	}
+	//Grid grid;
 
-	Grid::Rm = 0;
-	Grid::rounds = 0;
-	Grid::steps = 0;
+	//Grid::Rm = 0;
+	//Grid::rounds = 0;
+	//Grid::steps = 0;
 
-	while (!Grid::rounds)
-		grid.operate();
+	//while (!Grid::rounds)
+	//	grid.operate();
 	//grid.print();
 
 

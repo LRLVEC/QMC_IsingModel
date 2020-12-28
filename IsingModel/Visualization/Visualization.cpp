@@ -56,10 +56,10 @@ std::uniform_int_distribution<unsigned int> rdtauA(1, tauA);
 std::uniform_int_distribution<unsigned int> rdWorldLineDim(0, SpaceDim - 1);
 std::uniform_int_distribution<int> rdWorldLineDir(0, 1);
 //if return non-negetive, then plus 1 to make sure the result is in [-tauBD2, tauBD2)\{0}
-std::uniform_int_distribution<int> rdDeltaB(-int(tauBD2), tauBD2 - 2);
+std::uniform_int_distribution<int> rdDeltaB(-int(tauBD2), tauBD2 - 1);
 //if return non-negetive, then plus 1 to make sure the result is in [-tauCD2, tauCD2)\{0}
-std::uniform_int_distribution<int> rdDeltaC(-int(tauCD2), tauCD2 - 2);
-std::uniform_int_distribution<int> rdDeltaC1(-int(tauCD2), tauCD2 - 1);
+std::uniform_int_distribution<int> rdDeltaC(-int(tauCD2), tauCD2 - 1);
+std::uniform_int_distribution<int> rdDeltaC1(-int(tauCD2), tauCD2);
 
 //Each Grid for each thread
 struct Grid
@@ -93,12 +93,16 @@ struct Grid
 
 	OperationType operation;
 
-	static unsigned int Rm;
-	static unsigned int rounds;
-	static unsigned int steps;
+	unsigned int Rm;
+	unsigned int rounds;
+	unsigned int steps;
 
 	unsigned int tp0[BrickNum];
 	unsigned int tp1[BrickNum];
+
+	int deltaMove;
+	int deltaInsert;
+	int deltaDelete;
 
 #define get(x, y) (((x) >> (y)) & 1)
 #define set(x,y) ((x) ^= (1u << (y)))
@@ -129,9 +133,13 @@ struct Grid
 		memset(grid, 0, GridSize);
 		memset(gridU, 0, GridUSize);
 		memset(gridKinks, 0, GridKinksSize);
-		memset(gridTraverse, 0, GridSize);
-		memset(gridKinksTraverse, 0, GridKinksSize);
 		Ti = -1;
+		Rm = 0;
+		rounds = 0;
+		steps = 0;
+		deltaMove = 0;
+		deltaInsert = 0;
+		deltaDelete = 0;
 	}
 	inline unsigned int* gridKinksOrigin(unsigned int X, unsigned int dim)
 	{
@@ -382,7 +390,7 @@ struct Grid
 				}
 				Ti = -1;
 				rounds++;
-				Rm += (windingNumber() != 0);
+				Rm += (singleWindingNumber() != 0);
 				operation = Annihilate;
 				printf("accepted\t");
 				printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u\n", Xi, Xm, Ti, Tm);
@@ -398,7 +406,7 @@ struct Grid
 		bool flag(false);
 		unsigned int Tn;
 		unsigned int t0, t1;
-		int dd(rdDeltaB(mt));
+		int dd(rdDeltaB(mt)), dd0;
 		if (dd >= 0)
 		{
 			dd++;
@@ -410,14 +418,16 @@ struct Grid
 			Tn = (Tm + dd) & NMinus1;
 			t0 = Tn, t1 = Tm;
 		}
+		dd0 = abs(dd);
 		int dU(flipSpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1));
-		dd -= 2 * dU;//variation of U
-		float acceptance(expf(h * dd));
+		dd0 -= 2 * dU;//variation of U
+		float acceptance(expf(h * dd0));
 		if (rd(mt) < acceptance)
 		{
 			copySpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1);
-			gridU[Xm & NMinus1] += dd;
+			gridU[Xm & NMinus1] += dd0;
 			Tm = Tn;
+			deltaMove += dd;
 			operation = Move;
 			printf("accepted\t");
 			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u\n", Xi, Xm, Ti, Tm);
@@ -437,7 +447,7 @@ struct Grid
 		unsigned int Tn;//position of the add kink
 		unsigned int* origin(gridKinksOrigin(Xk, dim));
 		unsigned int t0, t1;
-		int dd0, dd1;
+		int dd, dd0, dd1;
 		//kinks number in [Tm - tauCD2, Tm + tauCD2 - 1)
 		unsigned int kn(kinksNum(origin, (Tm - tauCD2) & NMinus1, (Tm + tauCD2M1) & NMinus1));
 		//make sure that there is space for a new kink
@@ -445,16 +455,16 @@ struct Grid
 			do
 			{
 				//choose a position which has no kink
-				dd0 = rdDeltaC(mt);
-				if (dd0 >= 0)
+				dd = rdDeltaC(mt);
+				if (dd >= 0)
 				{
-					dd0++;
-					Tn = (Tm + dd0) & NMinus1;
+					dd++;
+					Tn = (Tm + dd) & NMinus1;
 					t0 = (Tm + 1) & NMinus1, t1 = Tn;
 				}
 				else
 				{
-					Tn = (Tm + dd0) & NMinus1;
+					Tn = (Tm + dd) & NMinus1;
 					t0 = (Tn + 1) & NMinus1, t1 = Tm;
 				}
 			} while (get(origin[Tn >> 5], Tn & 31));
@@ -463,7 +473,7 @@ struct Grid
 			printf("denied\n");
 			return;
 		}
-		dd1 = dd0;
+		dd1 = dd0 = abs(dd);
 		int dU0(flipSpins(tp0, Xm & NMinus1, t0, t1));
 		dd0 -= 2 * dU0;//variation of U
 		int dU1(flipSpins(tp1, Xn & NMinus1, t0, t1));
@@ -477,6 +487,82 @@ struct Grid
 			gridU[Xm & NMinus1] += dd0;
 			gridU[Xn & NMinus1] += dd1;
 			Xm = Xn;
+			operation = Insert;
+			printf("accepted\t");
+			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
+			flag = true;
+		}
+		if (!flag)printf("denied\n");
+	}
+	//insert a kink (two neighbour kinks cannot have the same t)
+	void insertKinkLimited()
+	{
+		printf("InsertLimited\t");
+		bool flag(false);
+		int dim(rdWorldLineDim(mt));//which dimension that the movement takes 
+		int dir(rdWorldLineDir(mt));//direction of the movement, 0 means -1, 1 means 1
+		int Xn(Xm + (2 * dir - 1));//neighbour of Xm, new Xm
+		int Xk, Xk1, Xk2;
+		if (dir)
+		{
+			Xk = Xm & NMinus1;
+			Xk1 = Xn & NMinus1;
+			Xk2 = (Xm + NMinus1) & NMinus1;
+		}
+		else
+		{
+			Xk = Xn & NMinus1;
+			Xk1 = Xm & NMinus1;
+			Xk2 = (Xn + NMinus1) & NMinus1;
+		}
+		unsigned int Tn;//position of the add kink
+		unsigned int tb((Tm - tauCD2) & NMinus1), te((Tm + tauCD2M1) & NMinus1);
+		kinksLogicOr(Xk, Xk1, Xk2, tb, te);
+		unsigned int t0, t1;
+		int dd, dd0, dd1;
+		unsigned int* origin(gridKinksOrigin(Xk, dim));
+		unsigned int kn(kinksNum(tp0, tb, te));
+		//kinks number in [Tm - tauCD2, Tm + tauCD2 - 1)
+		unsigned int nk(kinksNum(origin, tb, te));
+		//make sure that there is space for a new kink
+		if (tauCM1 != kn - get(tp0[Tm >> 5], Tm & 31))
+			do
+			{
+				//choose a position which has no kink
+				dd = rdDeltaC(mt);
+				if (dd >= 0)
+				{
+					dd++;
+					Tn = (Tm + dd) & NMinus1;
+					t0 = (Tm + 1) & NMinus1, t1 = Tn;
+				}
+				else
+				{
+					Tn = (Tm + dd) & NMinus1;
+					t0 = (Tn + 1) & NMinus1, t1 = Tm;
+				}
+			} while (get(tp0[Tn >> 5], Tn & 31));
+		else
+		{
+			printf("denied\n");
+			return;
+		}
+		dd1 = dd0 = abs(dd);
+		int dU0(flipSpins(tp0, Xm & NMinus1, t0, t1));
+		dd0 -= 2 * dU0;//variation of U
+		int dU1(flipSpins(tp1, Xn & NMinus1, t0, t1));
+		dd1 -= 2 * dU1;//variation of U
+		//still nk because the delete operation doesn't check the other two kink lines
+		float acceptance((tauC * expf(h * (dd0 + dd1)) / (nk + 1)));
+		if (rd(mt) < acceptance)
+		{
+			copySpins(tp0, Xm & NMinus1, t0, t1);
+			copySpins(tp1, Xn & NMinus1, t0, t1);
+			set(origin[Tn >> 5], Tn & 31);
+			gridU[Xm & NMinus1] += dd0;
+			gridU[Xn & NMinus1] += dd1;
+			Xm = Xn;
+			deltaMove += dd;
 			operation = Insert;
 			printf("accepted\t");
 			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
@@ -517,7 +603,7 @@ struct Grid
 		float acceptance(kn * tauCInv);
 		if (dd)
 		{
-			dd1 = dd0 = dd;
+			dd1 = dd0 = abs(dd);
 			int dU0(flipSpins(tp0, Xm & NMinus1, (t0 + 1) & NMinus1, t1));
 			dd0 -= 2 * dU0;//variation of U
 			int dU1(flipSpins(tp1, Xn & NMinus1, (t0 + 1) & NMinus1, t1));
@@ -535,82 +621,8 @@ struct Grid
 			}
 			set(origin[Tn >> 5], Tn & 31);
 			Xm = Xn;
+			deltaDelete += dd;
 			operation = Delete;
-			printf("accepted\t");
-			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
-			flag = true;
-		}
-		if (!flag)printf("denied\n");
-	}
-	//insert a kink (two neighbour kinks cannot have the same t)
-	void insertKinkLimited()
-	{
-		printf("InsertLimited\t");
-		bool flag(false);
-		int dim(rdWorldLineDim(mt));//which dimension that the movement takes 
-		int dir(rdWorldLineDir(mt));//direction of the movement, 0 means -1, 1 means 1
-		int Xn(Xm + (2 * dir - 1));//neighbour of Xm, new Xm
-		int Xk, Xk1, Xk2;
-		if (dir)
-		{
-			Xk = Xm & NMinus1;
-			Xk1 = Xn & NMinus1;
-			Xk2 = (Xm + NMinus1) & NMinus1;
-		}
-		else
-		{
-			Xk = Xn & NMinus1;
-			Xk1 = Xm & NMinus1;
-			Xk2 = (Xn + NMinus1) & NMinus1;
-		}
-		unsigned int Tn;//position of the add kink
-		unsigned int tb((Tm - tauCD2) & NMinus1), te((Tm + tauCD2M1) & NMinus1);
-		kinksLogicOr(Xk, Xk1, Xk2, tb, te);
-		unsigned int t0, t1;
-		int dd0, dd1;
-		unsigned int* origin(gridKinksOrigin(Xk, dim));
-		unsigned int kn(kinksNum(tp0, tb, te));
-		//kinks number in [Tm - tauCD2, Tm + tauCD2 - 1)
-		unsigned int nk(kinksNum(origin, tb, te));
-		//make sure that there is space for a new kink
-		if (tauCM1 != kn - get(tp0[Tm >> 5], Tm & 31))
-			do
-			{
-				//choose a position which has no kink
-				dd0 = rdDeltaC(mt);
-				if (dd0 >= 0)
-				{
-					dd0++;
-					Tn = (Tm + dd0) & NMinus1;
-					t0 = (Tm + 1) & NMinus1, t1 = Tn;
-				}
-				else
-				{
-					Tn = (Tm + dd0) & NMinus1;
-					t0 = (Tn + 1) & NMinus1, t1 = Tm;
-				}
-			} while (get(tp0[Tn >> 5], Tn & 31));
-		else
-		{
-			printf("denied\n");
-			return;
-		}
-		dd1 = dd0;
-		int dU0(flipSpins(tp0, Xm & NMinus1, t0, t1));
-		dd0 -= 2 * dU0;//variation of U
-		int dU1(flipSpins(tp1, Xn & NMinus1, t0, t1));
-		dd1 -= 2 * dU1;//variation of U
-		//still nk because the delete operation doesn't check the other two kink lines
-		float acceptance((tauC * expf(h * (dd0 + dd1)) / (nk + 1)));
-		if (rd(mt) < acceptance)
-		{
-			copySpins(tp0, Xm & NMinus1, t0, t1);
-			copySpins(tp1, Xn & NMinus1, t0, t1);
-			set(origin[Tn >> 5], Tn & 31);
-			gridU[Xm & NMinus1] += dd0;
-			gridU[Xn & NMinus1] += dd1;
-			Xm = Xn;
-			operation = Insert;
 			printf("accepted\t");
 			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
 			flag = true;
@@ -648,14 +660,20 @@ struct Grid
 		}
 	}
 	//wind number
-	unsigned int windingNumber()
+	unsigned int singleWindingNumber()
 	{
 		return abs(Xi - Xm) / NMinus1;
 	}
 	//traverse a grid
 	void traverse()
 	{
+		memset(gridTraverse, 0, GridSize);
+		memset(gridKinksTraverse, 0, GridKinksSize);
+		int x(0), t(0);
+		for (;;)
+		{
 
+		}
 	}
 	//print one world line
 	void print(unsigned int X)const
@@ -671,10 +689,10 @@ struct Grid
 	//print debug info
 	void printDebug()
 	{
-		printf("Xi:%4d, Xm:%4d, Tm:%4u, Wind:%2u\n", Xi, Xm, Tm, windingNumber());
+		printf("Xi:%4d, Xm:%4d, Tm:%4u, Wind:%2u\n", Xi, Xm, Tm, singleWindingNumber());
 	}
 	//print statistical results
-	static void printResults()
+	void printResults()
 	{
 		printf("Rounds:%4u, Rm:%4u, R:%.3f, Steps Per Loop:%.3f\n",
 			rounds, Rm, float(Rm) / rounds, float(steps) / rounds);
@@ -682,10 +700,6 @@ struct Grid
 #undef get
 #undef set
 };
-
-unsigned int Grid::Rm = 0;
-unsigned int Grid::rounds = 0;
-unsigned int Grid::steps = 0;
 
 
 constexpr size_t SpinsSize(powd(N, SpaceDim + 1) * sizeof(Math::vec2<float>));
@@ -1085,8 +1099,22 @@ namespace OpenGL
 			{
 				do
 				{
+					//printf("DeltaMove:\t%.3f\nDeltaInsert:\t%.3f\nDeltaDelete:\t%.3f\n",
+					//	float(grid.deltaMove) / grid.steps,
+					//	float(grid.deltaInsert) / grid.steps,
+					//	float(grid.deltaDelete) / grid.steps);
 					grid.operate();
 				} while (grid.operation < Grid::Insert);
+
+				//if (grid.operation == Grid::Annihilate)
+				//{
+				//	printf("DeltaMove:\t%.3f\nDeltaInsert:\t%.3f\nDeltaDelete:\t%.3f\n",
+				//		float(grid.deltaMove) / grid.steps,
+				//		float(grid.deltaInsert) / grid.steps,
+				//		float(grid.deltaDelete) / grid.steps);
+				//	update = false;
+				//}
+
 				gridSpinsStorage.refreshData();
 				gridKinksStorage.refreshData();
 				//update = false;
