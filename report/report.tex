@@ -90,7 +90,14 @@ with correlation length $\xi(T)\sim\frac{1}{|T-T_c|}$. As $T\rightarrow T_c$, th
 \begin{equation}
 	\Gamma(i-j)\sim\frac{1}{|i-j|^{d-2+\eta}}
 \end{equation}
-and the power-law decay remind us that the critical point of Ising model can be related to some conformal field theory. The critical exponents are listed as figure 1.
+and the power-law decay remind us that the critical point of Ising model can be related to some conformal field theory. The critical exponents are listed as Fig.~\ref{fig:Critical_Exponents}.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figs/Critical_Exponents.png}
+  \caption{Critical exponents of the Ising model.}
+  \label{fig:Critical_Exponents}
+\end{figure}
 
 \section{Worm Algorithm}
 The Hamiltonian of quantum transverse-field Ising model can be written as
@@ -119,9 +126,9 @@ with the integrand function
   \label{eq:integrand}
 \end{equation}
 where $\mathcal{N}_h$ and $\mathcal{N}_p$ are the number of hopping and pairing kinks. So the partition function $\mathcal{Z}$ can be regarded as the summation of different configuration in the $(d+1)$D space-time, of which the statistical probability is
-\[
+\begin{equation}
   W_{\mathcal{Z}}(t, h) = \prod_{k=1}^{\mathcal{N}}\mathrm{d}\tau\,F(t, h).
-\]
+\end{equation}
 
 In this representation, each configuration can be viewed in the following way. For each lattice site $i$, the spin $\sigma_i^z$ may be flipped by the hopping or pairing at some imaginary time $\tau_k$. Since either hopping or pairing term simultaneously flips spins at two NN sites, so one can construct a loop by following the spin-up segments along the imaginary time, and kinks which labels the spin flips of two NN sites. Hence, a configuration can be indentified with several loops of spin-up in the $(d+1)$D space-time.
 
@@ -138,7 +145,7 @@ here $\omega_G$ is an arbitary positive number. And when $I$ coincides with $M$,
 The key idea of the worm algorithm is to move the defects $I$ and $M$ of the open path (like a worm wriggling) to produce different $\mathcal{G}$ and $\mathcal{Z}$ configurations for sampling. For ergodicity, the simulation should be able to change the number of kinks, the space-time location of kinks, and that of the defects $I$ and $M$. So we perform the following three kinds of updates:
 \begin{enumerate}
   \item \textit{Create/annihilate defects $I$ and $M$.}
-    If the current configuration is in the $\mathcal{Z}$ space, then ``creating defects'' is the only possible update. We randomly picks up a point $(\bm{x}_I, \tau_I)$ in the whole space-time, draws a uniformly distributed time displacement $\delta \in [-\tau_a/2, \tau/2)$ and $\delta \ne 0$, assigns $\bm{x}_M = \bm{x}_I$ and $\tau_M = \Mod(\tau_I+\delta, \beta)$, and flips the spin state between $I$ and $M$.
+    If the current configuration is in the $\mathcal{Z}$ space, then ``creating defects'' is the only possible update. We randomly picks up a point $(\bm{x}_I, \tau_I)$ in the whole space-time, draws a uniformly distributed time displacement $\delta \in [-\tau_a/2, \tau/2]$ and $\delta \ne 0$, assigns $\bm{x}_M = \bm{x}_I$ and $\tau_M = \Mod(\tau_I+\delta, \beta)$, and flips the spin state between $I$ and $M$.
 
     The reverse operation of ``creating defects'' is ``annihilating defects'', which is chosen with an \textit{a priori} probability $\mathcal{A}_a$ in the $\mathcal{G}$ space. By annihilating defects $I$ and $M$ and flipping the spin state inbetween, a $\mathcal{G}$ configuration are changed into a $\mathcal{Z}$ configuration. The annihilation is possible only if $I$ and $M$ are on the same world line $\bm{x}_I = \bm{x}_M$ and their imaginary-time displacement $\min\{|\tau_I-\tau_M|, \beta-|\tau_I-\tau_M|\} \le \tau_a/2$.
 
@@ -154,15 +161,15 @@ The key idea of the worm algorithm is to move the defects $I$ and $M$ of the ope
     where $F_\text{old}$ and $F_\text{new}$ are given by Eq.~\ref{eq:integrand}. And here we choose $\omega = \beta N$ to make the calculation simpler.
 
   \item \textit{Move imaginary time of defect $M$.}
-    This kind of update is chosen with a probability $\mathcal{A}_b$ in the $\mathcal{G}$ space. We randomly select a imaginary-time displacement $\delta \in [-\tau_b/2, \tau_b/2)$ and $\delta\ne 0$, assigns $\tau'_M = \Mod(\tau_M+\delta,\beta)$ for the new temporal location of defect $M$, and flips the spin states inbetween. The acceptance probability is
+    This kind of update is chosen with a probability $\mathcal{A}_b$ in the $\mathcal{G}$ space. We randomly select a imaginary-time displacement $\delta \in [-\tau_b/2, \tau_b/2]$ and $\delta\ne 0$, assigns $\tau'_M = \Mod(\tau_M+\delta,\beta)$ for the new temporal location of defect $M$, and flips the spin states inbetween. The acceptance probability is
     \begin{equation}
       P_\text{move} = \min\left\{1, \frac{F_\text{new}}{F_\text{old}}\right\}.
     \end{equation}
 
   \item \textit{Insert/delete a kink.}
-    Each operation is chosen with a probability $\mathcal{A}_c$ in the $\mathcal{G}$ space. When ``inserting a knik'', we randomly choose one of the $z_d = 2d$ neighbouring world lines of $\bm{x}_M$, denote it as $\bm{x}_M'$, and updates the location of $M$ from $(\bm{x}_M, \tau_M)$ to $(\bm{x}_M', \tau_M)$. Meanwhile, we insert a kink $k$ between world lines ${\mathbf x}_M$ and ${\mathbf x}'_M$ at imaginary time $\tau_k = \Mod(\tau_M+\delta,\beta)$, with a random displacement $\delta \in [-\tau_c/2, \tau_c/2)$ and $\delta\neq 0$. Further, the spin states between $\tau_M$ and $\tau_k$, on both ${\mathbf x}_M$ and ${\mathbf x}'_M$, are flipped.
+    Each operation is chosen with a probability $\mathcal{A}_c$ in the $\mathcal{G}$ space. When ``inserting a knik'', we randomly choose one of the $z_d = 2d$ neighbouring world lines of $\bm{x}_M$, denote it as $\bm{x}_M'$, and updates the location of $M$ from $(\bm{x}_M, \tau_M)$ to $(\bm{x}_M', \tau_M)$. Meanwhile, we insert a kink $k$ between world lines ${\mathbf x}_M$ and ${\mathbf x}'_M$ at imaginary time $\tau_k = \Mod(\tau_M+\delta,\beta)$, with a random displacement $\delta \in [-\tau_c/2, \tau_c/2]$ and $\delta\neq 0$. Further, the spin states between $\tau_M$ and $\tau_k$, on both ${\mathbf x}_M$ and ${\mathbf x}'_M$, are flipped.
 
-    In the reverse operation, ``deleting a kink'', we also pick up a random neighbouring world line ${\mathbf x}'_M$ of $\mathbf{x}_M$ and moves $M$ from $({\mathbf x}_M, \tau_M)$ to $({\mathbf x}'_M, \tau_M)$. If there is no kink that connects world lines ${\mathbf x}_M$ and ${\mathbf x}'_M$ in the imaginary-time domain $[\tau_M-\tau_c/2, \tau_M+\tau_c/2)$, the operation is rejected. Otherwise, we randomly pick up one of those  $n_k$ in this region and delete it, and meanwhile flip the spin states on both world lines between $\tau_M$ and the imaginary time of the deleted kink.
+    In the reverse operation, ``deleting a kink'', we also pick up a random neighbouring world line ${\mathbf x}'_M$ of $\mathbf{x}_M$ and moves $M$ from $({\mathbf x}_M, \tau_M)$ to $({\mathbf x}'_M, \tau_M)$. If there is no kink that connects world lines ${\mathbf x}_M$ and ${\mathbf x}'_M$ in the imaginary-time domain $[\tau_M-\tau_c/2, \tau_M+\tau_c/2]$, the operation is rejected. Otherwise, we randomly pick up one of those  $n_k$ in this region and delete it, and meanwhile flip the spin states on both world lines between $\tau_M$ and the imaginary time of the deleted kink.
 
     The detailed balance conditon of this pair of operations is
     \begin{equation}
@@ -175,12 +182,11 @@ The key idea of the worm algorithm is to move the defects $I$ and $M$ of the ope
     \end{gather}
 \end{enumerate}
 
-The worm algorithm can be concluded as Algorithm.~\ref{algorithm}, in which \textit{a priori} probabilities satisfy $\mathcal{A}_a+\mathcal{A}_b+2\mathcal{A}_c = 1$.
-
-\begin{algorithm}
+The worm algorithm can be concluded as Algorithm.~\ref{algorithm}, in which \textit{a priori} probabilities satisfy $\mathcal{A}_a+\mathcal{A}_b+2\mathcal{A}_c = 1$.\\
+\begin{minipage}{\linewidth}
+  \begin{algorithm}[H]
   \caption{Worm algorithm}
   \label{algorithm}
-  \algsetup{indent=1em}
   \begin{algorithmic}
     \STATE initialization;
     \STATE thermalization;
@@ -189,12 +195,13 @@ The worm algorithm can be concluded as Algorithm.~\ref{algorithm}, in which \tex
         \STATE compute statistical quantities of this configuration;
         \STATE choose the ``creating defects $(I, M)$'' operation;
       \ELSE
-        \STATE  choose an operation with its {\it a priori}  probability;
+        \STATE  choose an operation with its \textit{a priori}  probability;
         except ``creating defects $(I, M)$'';
       \ENDIF
       \STATE calculate the acceptance probability $P$ and carry out the operation with the probability $P$;
     \ENDLOOP
   \end{algorithmic}
 \end{algorithm}
+\end{minipage}
 \section{Numerical Results}
 \end{document}
