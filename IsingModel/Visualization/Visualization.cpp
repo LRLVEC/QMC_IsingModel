@@ -1,13 +1,16 @@
 #include <cstdio>
-#include <GL/_Window.h>
-#include <GL/_OpenGL.h>
-#include <GL/_NBody.h>
-#include <_Bit.h>
 #include <random>
+#include <_Bit.h>
 #include <_Math.h>
 #include <_Time.h>
+#include <GL/_Window.h>
+#ifdef _WIN32
 #include <intrin.h>
 #define popc(x) __popcnt(x)
+#else
+// #include <immintrin.h>
+#define popc(x) __builtin_popcount(x)
+#endif
 
 //for space-dim = 1
 constexpr unsigned int powd(unsigned int a, unsigned int n)
