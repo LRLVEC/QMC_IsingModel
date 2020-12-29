@@ -90,14 +90,25 @@ with correlation length $\xi(T)\sim\frac{1}{|T-T_c|}$. As $T\rightarrow T_c$, th
 \begin{equation}
 	\Gamma(i-j)\sim\frac{1}{|i-j|^{d-2+\eta}}
 \end{equation}
-and the power-law decay remind us that the critical point of Ising model can be related to some conformal field theory. The critical exponents are listed as Fig.~\ref{fig:Critical_Exponents}.
+and the power-law decay remind us that the critical point of Ising model can be related to some conformal field theory. The critical exponents are listed as Table~\ref{tab:critical_exponents}.
 
-\begin{figure}[htpb]
+\begin{table}[htpb]
   \centering
-  \includegraphics[width=0.6\textwidth]{figs/Critical_Exponents.png}
   \caption{Critical exponents of the Ising model.}
-  \label{fig:Critical_Exponents}
-\end{figure}
+  \label{tab:critical_exponents}
+  \begin{tabular}{crlc}
+    \toprule
+    Exponents & \multicolumn{2}{c}{Definition} & Ising Value \\
+    $\alpha$ & $C$ & $ \propto (T-T_c)^{-\alpha}$ & 0 \\
+    $\beta$ & $M$ & $ \propto (T_c-T)^\beta$ & 1/8 \\
+    $\gamma$ & $\chi$ & $ \propto (T-T_c)^{-\gamma}$ & 7/4 \\
+    $\delta$ & $M$ & $ \propto h^{1/\delta}$ & 15 \\
+    \midrule
+    $\nu$ & $\xi$ & $ \propto (T-T_c)^{-\nu}$ & 1 \\
+    $\eta$ & $\varGamma(n)$ & $ \propto |n|^{2-d-\eta}$ & 1/4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \section{Worm Algorithm}
 The Hamiltonian of quantum transverse-field Ising model can be written as
@@ -182,7 +193,7 @@ The key idea of the worm algorithm is to move the defects $I$ and $M$ of the ope
     \end{gather}
 \end{enumerate}
 
-The worm algorithm can be concluded as Algorithm.~\ref{algorithm}, in which \textit{a priori} probabilities satisfy $\mathcal{A}_a+\mathcal{A}_b+2\mathcal{A}_c = 1$.\\
+The worm algorithm can be concluded as Algorithm~\ref{algorithm}, in which \textit{a priori} probabilities satisfy $\mathcal{A}_a+\mathcal{A}_b+2\mathcal{A}_c = 1$.\\
 \begin{minipage}{\linewidth}
   \begin{algorithm}[H]
   \caption{Worm algorithm}
