@@ -110,6 +110,17 @@ and the power-law decay remind us that the critical point of Ising model can be 
   \end{tabular}
 \end{table}
 
+Now let's see the case of quantum phase transition, where we turn on the transverse field $h$ and let $h_z=0$, so we go back to the original Hamiltonian. Taking $d=1$ as the example, we wish to get the partition function $Z=\mathrm{Tr}[e^{-\beta H}]$. If we take $\beta=1/kT$ as imaginary time, we can calculate the partition function by path integral approach:
+\begin{equation}
+	Z=\sum_{\left\lbrace S^z_{i,l}\right\rbrace }\left\langle \left\lbrace S_{i,1}^z\right\rbrace|e^{-\Delta\tau H}|\left\lbrace S_{i,L}^z\right\rbrace\right\rangle\left\langle \left\lbrace S_{i,L}^z\right\rbrace|e^{-\Delta\tau H}|\left\lbrace S_{i,L-1}^z\right\rbrace\right\rangle
+	\cdots\left\langle \left\lbrace S_{i,2}^z\right\rbrace|e^{-\Delta\tau H}|\left\lbrace S_{i,1}^z\right\rbrace\right\rangle
+\end{equation}
+where all $S^z_{i,l}$ are $\mathbb{Z}_2$ variables representing z-components of spins at site $i$ and time index $l$. The time slice $\Delta\tau=\lim_{L\rightarrow\infty}\beta/L$. After some calculation, we get the following partition function:
+\begin{equation}
+	Z=\Lambda^{NL}\sum_{\left\lbrace S^z_{i,l}\right\rbrace }\exp[\sum_{i=1}^N\sum_{l=1}^L(\Delta\tau JS^z_{i,l}S^z_{i+1,l}+\gamma S^z_{i,l}S^z_{i,l+1})]
+\end{equation}
+with $\gamma=-\frac{1}{2}\mathrm{log}(\mathrm{tanh}(\Delta\tau h))$ and $\Lambda^2=\mathrm{sinh}(\Delta\tau h)\mathrm{cosh}(\Delta\tau h)$. So we can see that the 1+1 dimensional quantum Ising model is mapped to a 2+1 dimensional classical Ising model. Moreover, when we vary the transverse field $h$, the system will exhibit quantum phase transition.
+
 \section{Worm Algorithm}
 The Hamiltonian of quantum transverse-field Ising model can be written as
 \begin{equation}
