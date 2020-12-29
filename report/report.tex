@@ -53,16 +53,16 @@
 \begin{document}
 \maketitle
 
-\abstract{Ising model is one of the most important models in the field of statistical mechanics. Despite its simplicity, it shows plenty of rich physics such as critical phenomena, and its relation to $\mathbb{Z}_2$ gauge theory. In this project, we use numerical Monte Carlo method, including the classical Metropolis and the so-called Worm algorithm to simulate the transverse field Ising model (TFI) in different spatial dimensions to reveal its critical behavior, such as its phase transition temperature, some critical exponents, as well as its critical dimension necessary to make the spontaeneous symmetry breaking possible.}
+\abstract{Ising model is one of the most important models in the field of statistical mechanics. Despite its simplicity, it shows plenty of rich physics such as critical phenomena, and its relation to $\mathbb{Z}_2$ gauge theory. In this project, we use numerical Monte Carlo method, including the classical Metropolis and the so-called Worm algorithm to simulate the transverse field Ising model (TFI) in different spatial dimensions to reveal its critical behavior, such as its phase transition temperature, some critical exponents, as well as its critical dimension necessary to make the spontaneous symmetry breaking possible.}
 
 \section{Introduction}
-Ising model is one of the most fundamental model in statistical mechanics. The ferromagnetic transverse field Ising model hamiltonian is:
+Ising model is one of the most fundamental model in statistical mechanics. The ferromagnetic transverse field Ising model Hamiltonian is:
 \begin{equation}
 	H=-J\sum_{\langle ij\rangle}\sigma^z_i\sigma^z_j-h\sum_i\sigma_i^x
 \end{equation}
-where $\sigma_i^\alpha$ are the Pauli matrices representing the $\alpha$th component of the spin-1/2 on site $i$, and $J>0$. When $h=0$, correspongding to the classical Ising model, the eigenstates of this hamiltonian are simply the direct product of the $\sigma^z$ basis of all sites, and we can simply replace the Pauli matrices $\sigma_i^z$ by their eigenvalues, which are either 1 or -1. When we turn on the transverse field $h$, quantum effects come in the story, since there will be fluctuations around the $\sigma^z$ basis of the classical Ising model and basically the true eigenstates of the quantum Ising model with finite $h$ will be an entangled state. 
+where $\sigma_i^\alpha$ are the Pauli matrices representing the $\alpha$th component of the spin-1/2 on site $i$, and $J>0$. When $h=0$, corresponding to the classical Ising model, the eigenstates of this Hamiltonian are simply the direct product of the $\sigma^z$ basis of all sites, and we can simply replace the Pauli matrices $\sigma_i^z$ by their eigenvalues, which are either 1 or -1. When we turn on the transverse field $h$, quantum effects come in the story, since there will be fluctuations around the $\sigma^z$ basis of the classical Ising model and basically the true eigenstates of the quantum Ising model with finite $h$ will be an entangled state. 
 
-One of the main aspects that make Ising model so important in statistical mechanics is its thermodynamic fluctuation, especially its behavior near criticality. For simplicity, we let $h=0$ and add a longitudinal field $h_z$ in the  discussion of thermodynaminc behavior, so the Hamiltonian becomes
+One of the main aspects that make Ising model so important in statistical mechanics is its thermodynamic fluctuation, especially its behavior near criticality. For simplicity, we let $h=0$ and add a longitudinal field $h_z$ in the discussion of thermodynamic behavior, so the Hamiltonian becomes
 \begin{equation}
 	H=-J\sum_{\langle ij\rangle}\sigma^z_i\sigma^z_j-h_z\sum_i\sigma_i^z
 \end{equation}
@@ -71,7 +71,7 @@ From statistical mechanics, we can easily write down its partition function, and
 	\sinh\left(\frac{2J}{T_c}\right)=1\\
 	T_c=\frac{2J}{\log(1+\sqrt{2})}
 \end{gather} 
-The phase transition corresponds to a $\mathbb{Z}_2$ symmetry breaking. Next we can get different physical quautities with respect to temperature:
+The phase transition corresponds to a $\mathbb{Z}_2$ symmetry breaking. Next we can get different physical quantities with respect to temperature:
 Magnetization:
 \begin{equation}
 	M=\langle\sigma_i^z\rangle\sim(T_c-T)^{\frac{1}{8}}
@@ -90,14 +90,36 @@ with correlation length $\xi(T)\sim\frac{1}{|T-T_c|}$. As $T\rightarrow T_c$, th
 \begin{equation}
 	\Gamma(i-j)\sim\frac{1}{|i-j|^{d-2+\eta}}
 \end{equation}
-and the power-law decay remind us that the critical point of Ising model can be related to some conformal field theory. The critical exponents are listed as Fig.~\ref{fig:Critical_Exponents}.
+and the power-law decay remind us that the critical point of Ising model can be related to some conformal field theory. The critical exponents are listed as Table~\ref{tab:critical_exponents}.
 
-\begin{figure}[htpb]
+\begin{table}[htpb]
   \centering
-  \includegraphics[width=0.6\textwidth]{figs/Critical_Exponents.png}
   \caption{Critical exponents of the Ising model.}
-  \label{fig:Critical_Exponents}
-\end{figure}
+  \label{tab:critical_exponents}
+  \begin{tabular}{crlc}
+    \toprule
+    Exponents & \multicolumn{2}{c}{Definition} & Ising Value \\
+    $\alpha$ & $C$ & $ \propto (T-T_c)^{-\alpha}$ & 0 \\
+    $\beta$ & $M$ & $ \propto (T_c-T)^\beta$ & 1/8 \\
+    $\gamma$ & $\chi$ & $ \propto (T-T_c)^{-\gamma}$ & 7/4 \\
+    $\delta$ & $M$ & $ \propto h^{1/\delta}$ & 15 \\
+    \midrule
+    $\nu$ & $\xi$ & $ \propto (T-T_c)^{-\nu}$ & 1 \\
+    $\eta$ & $\varGamma(n)$ & $ \propto |n|^{2-d-\eta}$ & 1/4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Now let's see the case of quantum phase transition, where we turn on the transverse field $h$ and let $h_z=0$, so we go back to the original Hamiltonian. Taking $d=1$ as the example, we wish to get the partition function $Z=\mathrm{Tr}[e^{-\beta H}]$. If we take $\beta=1/kT$ as imaginary time, we can calculate the partition function by path integral approach:
+\begin{equation}
+	Z=\sum_{\left\lbrace S^z_{i,l}\right\rbrace }\left\langle \left\lbrace S_{i,1}^z\right\rbrace|e^{-\Delta\tau H}|\left\lbrace S_{i,L}^z\right\rbrace\right\rangle\left\langle \left\lbrace S_{i,L}^z\right\rbrace|e^{-\Delta\tau H}|\left\lbrace S_{i,L-1}^z\right\rbrace\right\rangle
+	\cdots\left\langle \left\lbrace S_{i,2}^z\right\rbrace|e^{-\Delta\tau H}|\left\lbrace S_{i,1}^z\right\rbrace\right\rangle
+\end{equation}
+where all $S^z_{i,l}$ are $\mathbb{Z}_2$ variables representing z-components of spins at site $i$ and time index $l$. The time slice $\Delta\tau=\lim_{L\rightarrow\infty}\beta/L$. After some calculation, we get the following partition function:
+\begin{equation}
+	Z=\Lambda^{NL}\sum_{\left\lbrace S^z_{i,l}\right\rbrace }\exp[\sum_{i=1}^N\sum_{l=1}^L(\Delta\tau JS^z_{i,l}S^z_{i+1,l}+\gamma S^z_{i,l}S^z_{i,l+1})]
+\end{equation}
+with $\gamma=-\frac{1}{2}\mathrm{log}(\mathrm{tanh}(\Delta\tau h))$ and $\Lambda^2=\mathrm{sinh}(\Delta\tau h)\mathrm{cosh}(\Delta\tau h)$. So we can see that the 1+1 dimensional quantum Ising model is mapped to a 2+1 dimensional classical Ising model. Moreover, when we vary the transverse field $h$, the system will exhibit quantum phase transition.
 
 \section{Worm Algorithm}
 The Hamiltonian of quantum transverse-field Ising model can be written as
@@ -114,7 +136,7 @@ Then with the Holstein-Primakoff transformation $b_i(b_i^\dag) = \sigma_i^+(\sig
 \end{equation}
 where the chemical potential $\mu = 2h$. For this BH model, $K_1$ accounts for the hopping of a particle, and $K_2$ simultaneously creates or deletes a pair of nearest neighbouring (NN) particles.
 
-We can use the imaginary-time path integral to represent the partion function: 
+We can use the imaginary-time path integral to represent the partition function: 
 \begin{align}
   \mathcal{Z} &= \Tr \left(\mathrm{e}^{-\beta \mathcal{H}}\right) = \sum_{a_0}\bra{\alpha_0}\mathrm{e}^{-\beta \mathcal{H}}\ket{\alpha_0}\\
               &= \lim_{\mathrm{d}\tau = \frac{\beta}{n}, n \to \infty} \sum_{\{\alpha_i\}}\bra{\alpha_0}\mathrm{e}^{-\mathcal{H}\mathrm{d}\tau}\ket{\alpha_{n-1}}\cdots \bra{\alpha_i}\mathrm{e}^{-\mathcal{H}\mathrm{d}\tau}\ket{\alpha_0}\\
@@ -130,7 +152,7 @@ where $\mathcal{N}_h$ and $\mathcal{N}_p$ are the number of hopping and pairing 
   W_{\mathcal{Z}}(t, h) = \prod_{k=1}^{\mathcal{N}}\mathrm{d}\tau\,F(t, h).
 \end{equation}
 
-In this representation, each configuration can be viewed in the following way. For each lattice site $i$, the spin $\sigma_i^z$ may be flipped by the hopping or pairing at some imaginary time $\tau_k$. Since either hopping or pairing term simultaneously flips spins at two NN sites, so one can construct a loop by following the spin-up segments along the imaginary time, and kinks which labels the spin flips of two NN sites. Hence, a configuration can be indentified with several loops of spin-up in the $(d+1)$D space-time.
+In this representation, each configuration can be viewed in the following way. For each lattice site $i$, the spin $\sigma_i^z$ may be flipped by the hopping or pairing at some imaginary time $\tau_k$. Since either hopping or pairing term simultaneously flips spins at two NN sites, so one can construct a loop by following the spin-up segments along the imaginary time, and kinks which labels the spin flips of two NN sites. Hence, a configuration can be identified with several loops of spin-up in the $(d+1)$D space-time.
 
 Then, we can extend the configuration space $\mathcal{Z}$ to $\mathcal{G}$ by including two defects, which corresponds to the spin-spin correlation function:
 \begin{equation}
@@ -140,14 +162,14 @@ where $T_\tau$ is the $\tau$-ordering operator. In the configuration space $\mat
 \begin{equation}
   W_\mathcal{G} = \frac{\mathrm{d}\tau_I\mathrm{d}\tau_M}{\omega_G} \prod_{k=1}^{\mathcal{N}}\mathrm{d}\tau_k\,F(t h),
 \end{equation}
-here $\omega_G$ is an arbitary positive number. And when $I$ coincides with $M$, the open path forms a loop, the configuration in the $\mathcal{G}$ space turns into one in the $\mathcal{Z}$ space.
+here $\omega_G$ is an arbitrary positive number. And when $I$ coincides with $M$, the open path forms a loop, the configuration in the $\mathcal{G}$ space turns into one in the $\mathcal{Z}$ space.
 
 The key idea of the worm algorithm is to move the defects $I$ and $M$ of the open path (like a worm wriggling) to produce different $\mathcal{G}$ and $\mathcal{Z}$ configurations for sampling. For ergodicity, the simulation should be able to change the number of kinks, the space-time location of kinks, and that of the defects $I$ and $M$. So we perform the following three kinds of updates:
 \begin{enumerate}
   \item \textit{Create/annihilate defects $I$ and $M$.}
     If the current configuration is in the $\mathcal{Z}$ space, then ``creating defects'' is the only possible update. We randomly picks up a point $(\bm{x}_I, \tau_I)$ in the whole space-time, draws a uniformly distributed time displacement $\delta \in [-\tau_a/2, \tau/2]$ and $\delta \ne 0$, assigns $\bm{x}_M = \bm{x}_I$ and $\tau_M = \Mod(\tau_I+\delta, \beta)$, and flips the spin state between $I$ and $M$.
 
-    The reverse operation of ``creating defects'' is ``annihilating defects'', which is chosen with an \textit{a priori} probability $\mathcal{A}_a$ in the $\mathcal{G}$ space. By annihilating defects $I$ and $M$ and flipping the spin state inbetween, a $\mathcal{G}$ configuration are changed into a $\mathcal{Z}$ configuration. The annihilation is possible only if $I$ and $M$ are on the same world line $\bm{x}_I = \bm{x}_M$ and their imaginary-time displacement $\min\{|\tau_I-\tau_M|, \beta-|\tau_I-\tau_M|\} \le \tau_a/2$.
+    The reverse operation of ``creating defects'' is ``annihilating defects'', which is chosen with an \textit{a priori} probability $\mathcal{A}_a$ in the $\mathcal{G}$ space. By annihilating defects $I$ and $M$ and flipping the spin state in-between, a $\mathcal{G}$ configuration are changed into a $\mathcal{Z}$ configuration. The annihilation is possible only if $I$ and $M$ are on the same world line $\bm{x}_I = \bm{x}_M$ and their imaginary-time displacement $\min\{|\tau_I-\tau_M|, \beta-|\tau_I-\tau_M|\} \le \tau_a/2$.
 
     The detailed-balance condition of creating and annihilating defects reads as
     \begin{equation}
@@ -161,17 +183,17 @@ The key idea of the worm algorithm is to move the defects $I$ and $M$ of the ope
     where $F_\text{old}$ and $F_\text{new}$ are given by Eq.~\ref{eq:integrand}. And here we choose $\omega = \beta N$ to make the calculation simpler.
 
   \item \textit{Move imaginary time of defect $M$.}
-    This kind of update is chosen with a probability $\mathcal{A}_b$ in the $\mathcal{G}$ space. We randomly select a imaginary-time displacement $\delta \in [-\tau_b/2, \tau_b/2]$ and $\delta\ne 0$, assigns $\tau'_M = \Mod(\tau_M+\delta,\beta)$ for the new temporal location of defect $M$, and flips the spin states inbetween. The acceptance probability is
+    This kind of update is chosen with a probability $\mathcal{A}_b$ in the $\mathcal{G}$ space. We randomly select a imaginary-time displacement $\delta \in [-\tau_b/2, \tau_b/2]$ and $\delta\ne 0$, assigns $\tau'_M = \Mod(\tau_M+\delta,\beta)$ for the new temporal location of defect $M$, and flips the spin states in-between. The acceptance probability is
     \begin{equation}
       P_\text{move} = \min\left\{1, \frac{F_\text{new}}{F_\text{old}}\right\}.
     \end{equation}
 
   \item \textit{Insert/delete a kink.}
-    Each operation is chosen with a probability $\mathcal{A}_c$ in the $\mathcal{G}$ space. When ``inserting a knik'', we randomly choose one of the $z_d = 2d$ neighbouring world lines of $\bm{x}_M$, denote it as $\bm{x}_M'$, and updates the location of $M$ from $(\bm{x}_M, \tau_M)$ to $(\bm{x}_M', \tau_M)$. Meanwhile, we insert a kink $k$ between world lines ${\mathbf x}_M$ and ${\mathbf x}'_M$ at imaginary time $\tau_k = \Mod(\tau_M+\delta,\beta)$, with a random displacement $\delta \in [-\tau_c/2, \tau_c/2]$ and $\delta\neq 0$. Further, the spin states between $\tau_M$ and $\tau_k$, on both ${\mathbf x}_M$ and ${\mathbf x}'_M$, are flipped.
+    Each operation is chosen with a probability $\mathcal{A}_c$ in the $\mathcal{G}$ space. When ``inserting a kink'', we randomly choose one of the $z_d = 2d$ neighbouring world lines of $\bm{x}_M$, denote it as $\bm{x}_M'$, and updates the location of $M$ from $(\bm{x}_M, \tau_M)$ to $(\bm{x}_M', \tau_M)$. Meanwhile, we insert a kink $k$ between world lines ${\mathbf x}_M$ and ${\mathbf x}'_M$ at imaginary time $\tau_k = \Mod(\tau_M+\delta,\beta)$, with a random displacement $\delta \in [-\tau_c/2, \tau_c/2]$ and $\delta\neq 0$. Further, the spin states between $\tau_M$ and $\tau_k$, on both ${\mathbf x}_M$ and ${\mathbf x}'_M$, are flipped.
 
     In the reverse operation, ``deleting a kink'', we also pick up a random neighbouring world line ${\mathbf x}'_M$ of $\mathbf{x}_M$ and moves $M$ from $({\mathbf x}_M, \tau_M)$ to $({\mathbf x}'_M, \tau_M)$. If there is no kink that connects world lines ${\mathbf x}_M$ and ${\mathbf x}'_M$ in the imaginary-time domain $[\tau_M-\tau_c/2, \tau_M+\tau_c/2]$, the operation is rejected. Otherwise, we randomly pick up one of those  $n_k$ in this region and delete it, and meanwhile flip the spin states on both world lines between $\tau_M$ and the imaginary time of the deleted kink.
 
-    The detailed balance conditon of this pair of operations is
+    The detailed balance condition of this pair of operations is
     \begin{equation}
       \mathcal{A}_c\cdot\frac{1}{z_d}\cdot\frac{\mathrm{d}\tau}{\tau_c}\cdot W\cdot \mathcal{P}_\text{inse} = \mathcal{A}_c\cdot\frac{1}{z_d}\cdot\frac{1}{n_k}\cdot W_+\cdot \mathcal{P}_\text{dele},
     \end{equation}
@@ -182,7 +204,7 @@ The key idea of the worm algorithm is to move the defects $I$ and $M$ of the ope
     \end{gather}
 \end{enumerate}
 
-The worm algorithm can be concluded as Algorithm.~\ref{algorithm}, in which \textit{a priori} probabilities satisfy $\mathcal{A}_a+\mathcal{A}_b+2\mathcal{A}_c = 1$.\\
+The worm algorithm can be concluded as Algorithm~\ref{algorithm}, in which \textit{a priori} probabilities satisfy $\mathcal{A}_a+\mathcal{A}_b+2\mathcal{A}_c = 1$.\\
 \begin{minipage}{\linewidth}
   \begin{algorithm}[H]
   \caption{Worm algorithm}
@@ -203,5 +225,8 @@ The worm algorithm can be concluded as Algorithm.~\ref{algorithm}, in which \tex
   \end{algorithmic}
 \end{algorithm}
 \end{minipage}
+\vspace{3mm}
+
+In this work, we focus on the topological properties instead of the magnetic/energy properties of $\mathcal{Z}$ configurations when sampling. In more detail, for a given $\mathcal{Z}$ configuration, we can count the winding number $W_i^l$ of the $l$-th loop along the $i$-th spatial direction. The total winding number $W_i = \sum_{l}W_i^l$ can be used to determine whether the $\mathcal{Z}$ configuration wrap along the $i$-th direction or not, which is indicated as $R_i = 1$ if $W_i > 0$ and $R_i = 0$ otherwise. Then the average wrapping probability $R = \sum_{i=1}\braket{R_i}/d$ is calculated, which indicates whether the in-site energy or the interaction dominates.
 \section{Numerical Results}
 \end{document}
