@@ -58,39 +58,39 @@
 \section{Introduction}
 Ising model is one of the most fundamental model in statistical mechanics. The ferromagnetic transverse field Ising model Hamiltonian is:
 \begin{equation}
-	H=-J\sum_{\langle ij\rangle}\sigma^z_i\sigma^z_j-h\sum_i\sigma_i^x
+	\mathcal{H}=-J\sum_{\langle ij\rangle}\sigma^z_i\sigma^z_j-h\sum_i\sigma_i^x
 \end{equation}
 where $\sigma_i^\alpha$ are the Pauli matrices representing the $\alpha$th component of the spin-1/2 on site $i$, and $J>0$. When $h=0$, corresponding to the classical Ising model, the eigenstates of this Hamiltonian are simply the direct product of the $\sigma^z$ basis of all sites, and we can simply replace the Pauli matrices $\sigma_i^z$ by their eigenvalues, which are either 1 or -1. When we turn on the transverse field $h$, quantum effects come in the story, since there will be fluctuations around the $\sigma^z$ basis of the classical Ising model and basically the true eigenstates of the quantum Ising model with finite $h$ will be an entangled state. 
 
 One of the main aspects that make Ising model so important in statistical mechanics is its thermodynamic fluctuation, especially its behavior near criticality. For simplicity, we let $h=0$ and add a longitudinal field $h_z$ in the discussion of thermodynamic behavior, so the Hamiltonian becomes
 \begin{equation}
-	H=-J\sum_{\langle ij\rangle}\sigma^z_i\sigma^z_j-h_z\sum_i\sigma_i^z
+	H=-J\sum_{\langle ij\rangle}\sigma^z_i\sigma^z_j-h_z\sum_i\sigma_i^z.
 \end{equation}
 From statistical mechanics, we can easily write down its partition function, and use different methods to solve the problem (transfer matrix for dimension $d=1$, mean field for $d>1$, as well as various numerical methods). We take $d=2$ as an example to see its critical behavior. At first it has a finite critical temperature between paramagnetic phase at higher temperature and ferromagnetic phase at lower temperature:
 \begin{gather}
-	\sinh\left(\frac{2J}{T_c}\right)=1\\
-	T_c=\frac{2J}{\log(1+\sqrt{2})}
+	\sinh\left(\frac{2J}{T_c}\right)=1,\\
+	T_c=\frac{2J}{\log(1+\sqrt{2})}.
 \end{gather} 
 The phase transition corresponds to a $\mathbb{Z}_2$ symmetry breaking. Next we can get different physical quantities with respect to temperature:
 Magnetization:
 \begin{equation}
-	M=\langle\sigma_i^z\rangle\sim(T_c-T)^{\frac{1}{8}}
+	M=\langle\sigma_i^z\rangle\sim(T_c-T)^{\frac{1}{8}}.
 \end{equation}
 Susceptibility:
 \begin{equation}
-	\chi=\frac{\partial M}{\partial h_z}\sim(T-T_c)^{-\frac{7}{4}}
+	\chi=\frac{\partial M}{\partial h_z}\sim(T-T_c)^{-\frac{7}{4}},
 \end{equation}
 and so on. 
 
 In particular, the two-point correlation function $\Gamma(i-j)=\langle\sigma_i^z\sigma_j^z\rangle-\langle\sigma_i^z\rangle\langle\sigma_j^z\rangle$ behave differently at different temperature. When $T$ is away from $T_c$, the correlation function decay exponentially:
 \begin{equation}
-	\Gamma(i-j)\sim e^{\frac{|i-j|}{\xi(T)}}
+	\Gamma(i-j)\sim e^{\frac{|i-j|}{\xi(T)}},
 \end{equation}
 with correlation length $\xi(T)\sim\frac{1}{|T-T_c|}$. As $T\rightarrow T_c$, the correlation length diverges, and the correlation function behaves like
 \begin{equation}
-	\Gamma(i-j)\sim\frac{1}{|i-j|^{d-2+\eta}}
+	\Gamma(i-j)\sim\frac{1}{|i-j|^{d-2+\eta}}.
 \end{equation}
-and the power-law decay remind us that the critical point of Ising model can be related to some conformal field theory. The critical exponents are listed as Table~\ref{tab:critical_exponents}.
+The critical exponents are listed as Table~\ref{tab:critical_exponents}.
 
 \begin{table}[htpb]
   \centering
@@ -110,16 +110,16 @@ and the power-law decay remind us that the critical point of Ising model can be 
   \end{tabular}
 \end{table}
 
-Now let's see the case of quantum phase transition, where we turn on the transverse field $h$ and let $h_z=0$, so we go back to the original Hamiltonian. Taking $d=1$ as the example, we wish to get the partition function $Z=\mathrm{Tr}[e^{-\beta H}]$. If we take $\beta=1/kT$ as imaginary time, we can calculate the partition function by path integral approach:
+Now let's see the case of quantum phase transition, where we turn on the transverse field $h$ and let $h_z=0$, so we go back to the original Hamiltonian. Taking $d=1$ as the example, we wish to get the partition function $\mathcal{Z}=\mathrm{Tr}[e^{-\beta H}]$. If we take $\beta=1/kT$ as imaginary time, we can calculate the partition function by path integral approach:
 \begin{equation}
   \begin{aligned}
-    Z=\sum_{\left\lbrace S^z_{i,l}\right\rbrace }&\left\langle \left\lbrace S_{i,1}^z\right\rbrace\right|e^{-\Delta\tau H}\left|\left\lbrace S_{i,L}^z\right\rbrace\right\rangle\left\langle \left\lbrace S_{i,L}^z\right\rbrace\left|e^{-\Delta\tau H}\right|\left\lbrace S_{i,L-1}^z\right\rbrace\right\rangle \\
+    \mathcal{Z}=\sum_{\left\lbrace S^z_{i,l}\right\rbrace }&\left\langle \left\lbrace S_{i,1}^z\right\rbrace\right|e^{-\Delta\tau H}\left|\left\lbrace S_{i,L}^z\right\rbrace\right\rangle\left\langle \left\lbrace S_{i,L}^z\right\rbrace\left|e^{-\Delta\tau H}\right|\left\lbrace S_{i,L-1}^z\right\rbrace\right\rangle \\
       &\times\cdots\left\langle \left\lbrace S_{i,2}^z\right\rbrace\left|e^{-\Delta\tau H}\right|\left\lbrace S_{i,1}^z\right\rbrace\right\rangle
   \end{aligned}
 \end{equation}
-where all $S^z_{i,l}$ are $\mathbb{Z}_2$ variables representing z-components of spins at site $i$ and time index $l$. The time slice $\Delta\tau=\lim_{L\rightarrow\infty}\beta/L$. After some calculation, we get the following partition function:
+where all $S^z_{i,l}$ are $\mathbb{Z}_2$ variables representing z-components of spins at site $i$ and time index $l$. The time slice $\Delta\tau=\beta/L$ and $L \to \infty$. After some calculation, we get the following partition function:
 \begin{equation}
-	Z=\Lambda^{NL}\sum_{\left\lbrace S^z_{i,l}\right\rbrace }\exp\left[\sum_{i=1}^N\sum_{l=1}^L\left(\Delta\tau JS^z_{i,l}S^z_{i+1,l}+\gamma S^z_{i,l}S^z_{i,l+1}\right)\right]
+	\mathcal{Z}=\Lambda^{NL}\sum_{\left\lbrace S^z_{i,l}\right\rbrace }\exp\left[\sum_{i=1}^N\sum_{l=1}^L\left(\Delta\tau JS^z_{i,l}S^z_{i+1,l}+\gamma S^z_{i,l}S^z_{i,l+1}\right)\right]
 \end{equation}
 with $\gamma=-\frac{1}{2}\log[ \tanh(\Delta\tau h) ]$ and $\Lambda^2=\sinh(\Delta\tau h)\cosh(\Delta\tau h)$. So we can see that the 1+1 dimensional quantum Ising model is mapped to a 2+1 dimensional classical Ising model. Moreover, when we vary the transverse field $h$, the system will exhibit quantum phase transition.
 
