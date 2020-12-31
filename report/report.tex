@@ -124,7 +124,7 @@ where all $S^z_{i,l}$ are $\mathbb{Z}_2$ variables representing z-components of 
 with $\gamma=-\frac{1}{2}\log[ \tanh(\Delta\tau h) ]$ and $\Lambda^2=\sinh(\Delta\tau h)\cosh(\Delta\tau h)$. So we can see that the 1+1 dimensional quantum Ising model is mapped to a 2+1 dimensional classical Ising model. Moreover, when we vary the transverse field $h$, the system will exhibit quantum phase transition.
 
 \section{Worm Algorithm}
-The Hamiltonian of quantum transverse-field Ising model can be written as
+The Hamiltonian of quantum transverse-field Ising (TFI) model can be rewritten as
 \begin{equation}
   \mathcal{H} = -t\sum_{\braket{ij}}\sigma_i^x\sigma_j^x - h\sum_{i}\sigma_i^z = K+U.
 \end{equation}
@@ -132,7 +132,7 @@ And the interaction term $K$ can be further expressed in terms of the raising an
 \begin{equation}
   K = K_1+K_2 = -t\sum_{\braket{ij}}(\sigma_i^+\sigma_j^-+\text{h.c.})-t\sum_{\braket{ij}}(\sigma_i^+\sigma_j^++\text{h.c.}).
 \end{equation}
-Then with the Holstein-Primakoff transformation $b_i(b_i^\dag) = \sigma_i^+(\sigma_i^-)$ and $n_i = b_i^\dag b_i = (\sigma_i^z+1)/2$, the QTFI model can be mapped onto a Bose-Hubbard (BH) model whose Hamiltonian is
+Then with the Holstein-Primakoff transformation $b_i(b_i^\dag) = \sigma_i^+(\sigma_i^-)$ and $n_i = b_i^\dag b_i = (\sigma_i^z+1)/2$, the TFI model can be mapped onto a Bose-Hubbard (BH) model whose Hamiltonian is
 \begin{equation}
   \mathcal{H} = -t\sum_{\braket{ij}}(b_i^\dag b_j+\text{h.c.})-t\sum_{\braket{ij}}(b_i^\dag b_j^\dag+\text{h.c.})-\mu\sum_{i}n_i, 
 \end{equation}
@@ -229,6 +229,6 @@ The worm algorithm can be concluded as Algorithm~\ref{algorithm}, in which \text
 \end{minipage}
 \vspace{3mm}
 
-In this work, we focus on the topological properties instead of the magnetic/energy properties of $\mathcal{Z}$ configurations when sampling. In more detail, for a given $\mathcal{Z}$ configuration, we can count the winding number $W_i^l$ of the $l$-th loop along the $i$-th spatial direction. The total winding number $W_i = \sum_{l}W_i^l$ can be used to determine whether the $\mathcal{Z}$ configuration wrap along the $i$-th direction or not, which is indicated as $R_i = 1$ if $W_i > 0$ and $R_i = 0$ otherwise. Then the average wrapping probability $R = \sum_{i=1}\braket{R_i}/d$ is calculated, which indicates whether the in-site energy or the interaction dominates.
+In this work, we focus on the topological properties instead of the magnetic/energy properties of $\mathcal{Z}$ configurations when sampling. In more detail, for a given $\mathcal{Z}$ configuration, we can count the winding number $W_i^l$ of the $l$-th loop along the $i$-th spatial direction. The total winding number $W_i = \sum_{l}W_i^l$ can be used to determine whether the $\mathcal{Z}$ configuration wrap along the $i$-th direction or not, which is indicated as $R_i = 1$ if $W_i > 0$ and $R_i = 0$ otherwise. Then the average wrapping probability $R = \sum_{i=1}\braket{R_i}/d$ is calculated, which indicates whether the in-site energy $U$ or the interaction $K$ dominates. If $|h| \gg 1$, $U$ dominates, which means that the loops are small and difficult to percolate, hence $R$ should be small (near 0). But if $|h| \ll 1$, $K$ dominates, so $R$ should be large (near 1).
 \section{Numerical Results}
 \end{document}
