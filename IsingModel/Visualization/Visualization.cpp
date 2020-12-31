@@ -7,10 +7,12 @@
 #ifdef _WIN32
 #include <intrin.h>
 #define popc(x) __popcnt(x)
+#define ffs(x) _tzcnt_u32(x)
 #else
 // #include <immintrin.h>
 #define popc(x) __builtin_popcount(x)
 #endif
+//#define PRINTDEBUGINFO
 
 //for space-dim = 1
 constexpr unsigned int powd(unsigned int a, unsigned int n)
@@ -19,59 +21,83 @@ constexpr unsigned int powd(unsigned int a, unsigned int n)
 	else return 1;
 }
 
-constexpr unsigned int N(64);
-constexpr unsigned int NMinus1(N - 1);
-constexpr unsigned int BrickNum(N / 32);
-constexpr unsigned int BrickMinus1(BrickNum - 1);
-constexpr unsigned int SpaceDim(1);
-constexpr unsigned int SpinNum(powd(N, SpaceDim + 1));
-constexpr unsigned int GridSize(powd(N, SpaceDim)* BrickNum * sizeof(unsigned int));
-constexpr unsigned int GridUSize(powd(N, SpaceDim) * sizeof(unsigned int));
-constexpr unsigned int GridKinksSize(powd(N, SpaceDim)* SpaceDim* BrickNum * sizeof(unsigned int));
-constexpr unsigned int GridKinksNumSize(powd(N, SpaceDim)* SpaceDim * sizeof(unsigned int));
-
-constexpr float Pa(1.f / 3);
-constexpr float Pb(1.f / 3);
-constexpr float Pc(1.f / 6);
-constexpr float APa(Pa);
-constexpr float APb(Pa + Pb);
-constexpr float APc0(Pa + Pb + Pc);
-
-constexpr float h(1.1f);
-constexpr unsigned int tauA(4);//\tau_a
-constexpr unsigned int tauAD2(tauA / 2);//\dfrac{\tau_a}{2}
-constexpr unsigned int tauB(4);//\tau_b
-constexpr unsigned int tauBM1(tauB - 1);//\tau_b-1
-constexpr unsigned int tauBD2(tauB / 2);//\dfrac{\tau_b}{2}
-constexpr unsigned int tauBD2M1(tauBD2 - 1);//\dfrac{\tau_b}{2}-1
-constexpr unsigned int tauC(4);//\tau_c
-constexpr unsigned int tauCM1(tauC - 1);//\tau_c-1
-constexpr unsigned int tauCD2(tauC / 2);//\dfrac{\tau_c}{2}
-constexpr unsigned int tauCD2M1(tauCD2 - 1);//\dfrac{\tau_c}{2}-1
-constexpr float tauCInv(1.f / tauC);
-constexpr float PaTauA(Pa* tauA);
-constexpr float PaTauAInv(1 / PaTauA);
+//constexpr unsigned int N(64);
+//constexpr unsigned int SpaceDim(1);
+//constexpr unsigned int BrickNum(N / 32);
+//constexpr unsigned int BrickMinus1(BrickNum - 1);
+//constexpr unsigned int BrickNumTotal(BrickNum* powd(N, SpaceDim));
+//constexpr unsigned int SpinNum(powd(N, SpaceDim + 1));
+//constexpr unsigned int GridSize(powd(N, SpaceDim)* BrickNum * sizeof(unsigned int));
+//constexpr unsigned int GridUSize(powd(N, SpaceDim) * sizeof(unsigned int));
+//constexpr unsigned int GridKinksSize(powd(N, SpaceDim)* SpaceDim* BrickNum * sizeof(unsigned int));
+//constexpr unsigned int GridKinksNumSize(powd(N, SpaceDim)* SpaceDim * sizeof(unsigned int));
 
 
-
-std::uniform_real_distribution<float> rd(0, 1);
-std::uniform_int_distribution<unsigned int> rdint(0, N - 1);
-std::uniform_int_distribution<unsigned int> rdtauA(1, tauA);
-std::uniform_int_distribution<unsigned int> rdWorldLineDim(0, SpaceDim - 1);
-std::uniform_int_distribution<int> rdWorldLineDir(0, 1);
-//if return non-negetive, then plus 1 to make sure the result is in [-tauBD2, tauBD2]\{0}
-std::uniform_int_distribution<int> rdDeltaB(-int(tauBD2), tauBD2 - 1);
-//if return non-negetive, then plus 1 to make sure the result is in [-tauCD2, tauCD2]\{0}
-std::uniform_int_distribution<int> rdDeltaC(-int(tauCD2), tauCD2 - 1);
-std::uniform_int_distribution<int> rdDeltaC1(-int(tauCD2), tauCD2);
 
 //Each Grid for each thread
+template<unsigned int N, unsigned int SpaceDim = 1>
 struct Grid
 {
+	static constexpr unsigned int NMinus1 = N - 1;
+	static constexpr unsigned int BrickNum = N / 32;
+	static constexpr unsigned int BrickMinus1 = BrickNum - 1;
+	static constexpr unsigned int BrickNumTotal = BrickNum * powd(N, SpaceDim);
+	static constexpr unsigned int SpinNum = powd(N, SpaceDim + 1);
+	static constexpr unsigned int GridSize = powd(N, SpaceDim) * BrickNum * sizeof(unsigned int);
+	static constexpr unsigned int GridUSize = powd(N, SpaceDim) * sizeof(unsigned int);
+	static constexpr unsigned int GridKinksSize = powd(N, SpaceDim) * SpaceDim * BrickNum * sizeof(unsigned int);
+	static constexpr unsigned int GridKinksNumSize = powd(N, SpaceDim) * SpaceDim * sizeof(unsigned int);
+
+	static constexpr float Pa = 1.f / 3;
+	static constexpr float Pb = 1.f / 3;
+	static constexpr float Pc = 1.f / 6;
+	static constexpr float APa = Pa;
+	static constexpr float APb = Pa + Pb;
+	static constexpr float APc0 = Pa + Pb + Pc;
+
+	static constexpr float h = 0.04f;
+
+#define IF(x) (x)?
+#define THEN(x) (x):
+#define ELSE(x) (x)
+	static constexpr unsigned int tauA =
+		IF(1.f / h < 4)
+		THEN(4)
+		ELSE(
+			IF(1.f / h > N / 2)
+			THEN(N / 2)
+			ELSE((unsigned int)(1.f / h) & (-2)));		//\tau_a
+#undef IF
+#undef THEN
+#undef ELSE
+	static constexpr unsigned int tauB = tauA;			//\tau_b
+	static constexpr unsigned int tauC = tauA;			//\tau_c
+	static constexpr unsigned int tauAD2 = tauA / 2;	//\dfrac{\tau_a}{2}
+	static constexpr unsigned int tauBD2 = tauB / 2;	//\dfrac{\tau_b}{2}
+	static constexpr unsigned int tauCD2 = tauC / 2;	//\dfrac{\tau_c}{2}
+	static constexpr unsigned int tauBM1 = tauB - 1;	//\tau_b-1
+	static constexpr unsigned int tauCM1 = tauC - 1;	//\tau_c-1
+	static constexpr unsigned int tauBD2M1 = tauBD2 - 1;//\dfrac{\tau_b}{2}-1
+	static constexpr unsigned int tauCD2M1 = tauCD2 - 1;//\dfrac{\tau_c}{2}-1
+	static constexpr float tauCInv = 1.f / tauC;
+	static constexpr float PaTauA = Pa * tauA;
+	static constexpr float PaTauAInv = 1 / PaTauA;
+
+	const std::uniform_real_distribution<float> rd;
+	const std::uniform_int_distribution<unsigned int> rdint;
+	const std::uniform_int_distribution<unsigned int> rdtauA;
+	const std::uniform_int_distribution<unsigned int> rdWorldLineDim;
+	const std::uniform_int_distribution<int> rdWorldLineDir;
+	//if return non-negetive, then plus 1 to make sure the result is in [-tauBD2, tauBD2]\{0}
+	const std::uniform_int_distribution<int> rdDeltaB;
+	//if return non-negetive, then plus 1 to make sure the result is in [-tauCD2, tauCD2]\{0}
+	const std::uniform_int_distribution<int> rdDeltaC;
+	const std::uniform_int_distribution<int> rdDeltaC1;
+
 	std::mt19937 mt;
 	Timer timer;
 
-	enum OperationType
+	enum class OperationType
 	{
 		None,
 		Create,
@@ -91,7 +117,6 @@ struct Grid
 
 	//DFS traverse of the grid
 	unsigned int* gridTraverse;
-	//unsigned int* gridKinksTraverse;
 
 	int Ti, Tm;//-1 means not created, does not need modulo
 	int Xi, Xm;
@@ -118,13 +143,20 @@ struct Grid
 
 	Grid()
 		:
+		rd(0, 1),
+		rdint(0, N - 1),
+		rdtauA(1, tauA),
+		rdWorldLineDim(0, SpaceDim - 1),
+		rdWorldLineDir(0, 1),
+		rdDeltaB(-int(tauBD2), tauBD2 - 1),
+		rdDeltaC(-int(tauCD2), tauCD2 - 1),
+		rdDeltaC1(-int(tauCD2), tauCD2),
 		mt(time(nullptr)),
 		grid((unsigned int*)malloc(GridSize)),
 		gridU((unsigned int*)malloc(GridUSize)),
 		gridKinks((unsigned int*)malloc(GridKinksSize)),
 		gridTraverse((unsigned int*)malloc(GridSize)),
-		//gridKinksTraverse((unsigned int*)malloc(GridKinksSize)),
-		operation(None)
+		operation(OperationType::None)
 	{
 		clear();
 	}
@@ -353,7 +385,7 @@ struct Grid
 	//create defectes
 	void createDefects()
 	{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		printf("Create\t\t");
 #endif
 		Xi = Xm = rdint(mt);
@@ -368,8 +400,8 @@ struct Grid
 		{
 			copySpins(tp0, Xi, (Ti + 1) & NMinus1, Tm);
 			gridU[Xi] += dtauM;
-			operation = Create;
-#ifdef _DEBUG
+			operation = OperationType::Create;
+#ifdef PRINTDEBUGINFO
 			printf("accepted\t");
 			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u\n", Xi, Xm, Ti, Tm);
 #endif
@@ -377,7 +409,7 @@ struct Grid
 		else
 		{
 			Ti = -1;
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 			printf("denied\n");
 #endif
 		}
@@ -385,7 +417,7 @@ struct Grid
 	//annihilate defectes
 	void annihilateDefects()
 	{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		printf("Annihilate\t");
 #endif
 		bool flag(false);
@@ -413,22 +445,22 @@ struct Grid
 				Ti = -1;
 				rounds++;
 				Rm += (traverse() != 0);
-				operation = Annihilate;
-#ifdef _DEBUG
+				operation = OperationType::Annihilate;
+#ifdef PRINTDEBUGINFO
 				printf("accepted\t");
 				printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u\n", Xi, Xm, Ti, Tm);
 #endif
 				flag = true;
 			}
 		}
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		if (!flag)printf("denied\n");
 #endif
 	}
 	//move Tm
 	void moveMT()
 	{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		printf("Move\t\t");
 #endif
 		bool flag(false);
@@ -456,21 +488,21 @@ struct Grid
 			gridU[Xm & NMinus1] += dd0;
 			Tm = Tn;
 			deltaMove += dd;
-			operation = Move;
-#ifdef _DEBUG
+			operation = OperationType::Move;
+#ifdef PRINTDEBUGINFO
 			printf("accepted\t");
 			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u\n", Xi, Xm, Ti, Tm);
 #endif
 			flag = true;
 		}
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		if (!flag)printf("denied\n");
 #endif
 	}
 	//insert a kink
 	void insertKink()
 	{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		printf("Insert\t\t");
 		bool flag(false);
 #endif
@@ -504,7 +536,7 @@ struct Grid
 			} while (getGrid(origin, Tn));
 		else
 		{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 			printf("denied\n");
 #endif
 			return;
@@ -523,21 +555,21 @@ struct Grid
 			gridU[Xm & NMinus1] += dd0;
 			gridU[Xn & NMinus1] += dd1;
 			Xm = Xn;
-			operation = Insert;
-#ifdef _DEBUG
+			operation = OperationType::Insert;
+#ifdef PRINTDEBUGINFO
 			printf("accepted\t");
 			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
 			flag = true;
 #endif
 		}
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		if (!flag)printf("denied\n");
 #endif
 	}
 	//insert a kink (two neighbour kinks cannot have the same t)
 	void insertKinkLimited()
 	{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		printf("InsertLimited\t");
 		bool flag(false);
 #endif
@@ -586,7 +618,7 @@ struct Grid
 			} while (getGrid(tp0, Tn));
 		else
 		{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 			printf("denied\n");
 #endif
 			return;
@@ -607,21 +639,21 @@ struct Grid
 			gridU[Xn & NMinus1] += dd1;
 			Xm = Xn;
 			deltaMove += dd;
-			operation = Insert;
-#ifdef _DEBUG
+			operation = OperationType::Insert;
+#ifdef PRINTDEBUGINFO
 			printf("accepted\t");
 			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
 			flag = true;
 #endif
 		}
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		if (!flag)printf("denied\n");
 #endif
 	}
 	//delete a kink
 	void deleteKink()
 	{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		printf("Delete\t\t");
 		bool flag(false);
 #endif
@@ -647,7 +679,7 @@ struct Grid
 			} while (!getGrid(origin, Tn));
 		else
 		{
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 			printf("denied\n");
 #endif
 			return;
@@ -674,22 +706,23 @@ struct Grid
 			setGrid(origin, Tn);
 			Xm = Xn;
 			deltaDelete += dd;
-			operation = Delete;
-#ifdef _DEBUG
+			operation = OperationType::Delete;
+#ifdef PRINTDEBUGINFO
 			printf("accepted\t");
 			printf("Xi:%4d, Xm:%4d, Ti:%4d, Tm:%4u, Tn: %4u\n", Xi, Xm, Ti, Tm, Tn);
 			flag = true;
 #endif
 		}
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 		if (!flag)printf("denied\n");
 #endif
 	}
 	//one step of operation
+	//TIME consumption (create a loop on average): 64: 1-2 ms
 	void operate()
 	{
 		steps++;
-		operation = None;
+		operation = OperationType::None;
 		if (Ti < 0)
 		{
 			createDefects();
@@ -715,6 +748,14 @@ struct Grid
 			}
 		}
 	}
+	//create and annihilate one loop
+	void oneLoop()
+	{
+		do
+		{
+			operate();
+		} while (operation != OperationType::Annihilate);
+	}
 	//reach balance
 	void reachBalance()
 	{
@@ -724,18 +765,18 @@ struct Grid
 			do
 			{
 				operate();
-			} while (operation != Annihilate);
+			} while (operation != OperationType::Annihilate);
 			printResults();
 		}
 		Rm = 0;
 		rounds = 0;
 		steps = 0;
-		operation = None;
+		operation = OperationType::None;
 	}
 	//some test set
 	void simpleTestSet()
 	{
-		operation = Annihilate;
+		operation = OperationType::Annihilate;
 		unsigned int* origin(gridOrigin(0));
 		setGrid(origin, 1);
 		origin = gridOrigin(1);
@@ -767,13 +808,14 @@ struct Grid
 		return false;
 	}
 	//traverse a grid and return the winding number of the whole grid
+	//TIME consumption: 64: 10-20 us
 	unsigned int traverse()
 	{
 #define notPassed(o, oT, x) (getGrid(o, x) ^ getGrid(oT, x))
 		unsigned int wdnm(0);
 		memset(gridTraverse, 0, GridSize);
-		//memset(gridKinksTraverse, 0, GridKinksSize);
-		int x(0), t(0), cnt(0);
+		int x(0), t(0);
+		int startingBrick(0);
 		unsigned int* origin;
 		unsigned int* originT;
 		unsigned int* kinkOrigin;
@@ -783,7 +825,6 @@ struct Grid
 			origin = gridOrigin(xx & NMinus1);
 			originT = gridOrigin(gridTraverse, xx);
 			kinkOrigin = gridKinksOrigin(xx, 0);
-			//kinkOriginT = gridKinksOrigin(gridKinksTraverse, xx, 0);
 		});
 		for (;;)
 		{
@@ -948,16 +989,15 @@ struct Grid
 			else
 			{
 				//printf("cnt:%u\n", cnt);
-				do
-				{
-					cnt++;
-					//finished searching all spins
-					if (cnt == SpinNum)
-						return wdnm;
-					t = cnt & NMinus1;
-					x = cnt / N;
-					setOrigins(x);
-				} while (!notPassed(origin, originT, t));
+				int s(startingBrick);
+				unsigned int d;
+				while (s < BrickNumTotal)
+					if ((d = grid[s] ^ gridTraverse[s]) == 0)s++;
+					else break;
+				if (s == BrickNumTotal)return wdnm;
+				startingBrick = s;
+				x = s / BrickNum;
+				t = ((s & BrickMinus1) << 5) + ffs(d);
 			}
 		}
 		memset(gridTraverse, 0, GridSize);
@@ -994,19 +1034,19 @@ struct Grid
 #undef set
 #undef getGrid
 #undef setGrid
+#undef setGridTo1
 };
-
-
-constexpr size_t SpinsSize(powd(N, SpaceDim + 1) * sizeof(Math::vec2<float>));
-constexpr size_t LinesSize(powd(N, SpaceDim + 1) * 2 * sizeof(Math::vec2<float>));
 
 namespace OpenGL
 {
+	template<unsigned int N, unsigned int SpaceDim = 1>
 	struct VisualGrid :OpenGL
 	{
 		// Points of Spins
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct Spins
 		{
+			static constexpr size_t SpinsSize = powd(N, SpaceDim + 1) * sizeof(Math::vec2<float>);
 			Math::vec2<float>* positions;
 			Spins(Math::vec2<float> origin, Math::vec2<float> ending)
 				:
@@ -1025,8 +1065,10 @@ namespace OpenGL
 			}
 		};
 		// Lines along with T
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct SpinLines
 		{
+			static constexpr size_t LinesSize = powd(N, SpaceDim + 1) * 2 * sizeof(Math::vec2<float>);
 			Math::vec2<float>* positions;
 			SpinLines(Math::vec2<float> origin, Math::vec2<float> ending)
 				:
@@ -1048,8 +1090,10 @@ namespace OpenGL
 			}
 		};
 		// Lines along with X
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct KinkLines
 		{
+			static constexpr size_t LinesSize = powd(N, SpaceDim + 1) * 2 * sizeof(Math::vec2<float>);
 			Math::vec2<float>* positions;
 			KinkLines(Math::vec2<float> origin, Math::vec2<float> ending)
 				:
@@ -1071,11 +1115,12 @@ namespace OpenGL
 				positions = nullptr;
 			}
 		};
-
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct SpinsData :Buffer::Data
 		{
-			Spins* spins;
-			SpinsData(Spins* _spins)
+			static constexpr size_t SpinsSize = powd(N, SpaceDim + 1) * sizeof(Math::vec2<float>);
+			Spins<N, SpaceDim>* spins;
+			SpinsData(Spins<N, SpaceDim>* _spins)
 				:
 				Data(StaticDraw),
 				spins(_spins)
@@ -1090,10 +1135,12 @@ namespace OpenGL
 				return SpinsSize;
 			}
 		};
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct SpinLinesData :Buffer::Data
 		{
-			SpinLines* spinLines;
-			SpinLinesData(SpinLines* _spinLines)
+			static constexpr size_t LinesSize = powd(N, SpaceDim + 1) * 2 * sizeof(Math::vec2<float>);
+			SpinLines<N, SpaceDim>* spinLines;
+			SpinLinesData(SpinLines<N, SpaceDim>* _spinLines)
 				:
 				Data(StaticDraw),
 				spinLines(_spinLines)
@@ -1108,10 +1155,12 @@ namespace OpenGL
 				return LinesSize;
 			}
 		};
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct KinkLinesData :Buffer::Data
 		{
-			KinkLines* kinkLines;
-			KinkLinesData(KinkLines* _kinkLines)
+			static constexpr size_t LinesSize = powd(N, SpaceDim + 1) * 2 * sizeof(Math::vec2<float>);
+			KinkLines<N, SpaceDim>* kinkLines;
+			KinkLinesData(KinkLines<N, SpaceDim>* _kinkLines)
 				:
 				Data(StaticDraw),
 				kinkLines(_kinkLines)
@@ -1126,14 +1175,16 @@ namespace OpenGL
 				return LinesSize;
 			}
 		};
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct EndPointsData :Buffer::Data
 		{
-			Grid* grid;
+			static constexpr unsigned int NMinus1 = N - 1;
+			Grid<N, SpaceDim>* grid;
 			Math::vec2<float>data[2];
 			Math::vec2<float> origin;
 			float deltaT;
 			float deltaX;
-			EndPointsData(Grid* _grid, Math::vec2<float> _origin, Math::vec2<float> ending)
+			EndPointsData(Grid<N, SpaceDim>* _grid, Math::vec2<float> _origin, Math::vec2<float> ending)
 				:
 				grid(_grid),
 				origin(_origin),
@@ -1155,11 +1206,14 @@ namespace OpenGL
 		};
 
 
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct GridSpinsData :Buffer::Data
 		{
+			static constexpr unsigned int BrickNum = N / 32;
+			static constexpr unsigned int GridSize = powd(N, SpaceDim) * BrickNum * sizeof(unsigned int);
 			unsigned int* grid;
 
-			GridSpinsData(Grid* _grid)
+			GridSpinsData(Grid<N, SpaceDim>* _grid)
 				:
 				grid(_grid->grid)
 			{
@@ -1173,11 +1227,14 @@ namespace OpenGL
 				return GridSize;
 			}
 		};
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct GridKinksData :Buffer::Data
 		{
+			static constexpr unsigned int BrickNum = N / 32;
+			static constexpr unsigned int GridKinksSize = powd(N, SpaceDim) * SpaceDim * BrickNum * sizeof(unsigned int);
 			unsigned int* gridKinks;
 
-			GridKinksData(Grid* _grid)
+			GridKinksData(Grid<N, SpaceDim>* _grid)
 				:
 				gridKinks(_grid->gridKinks)
 			{
@@ -1193,6 +1250,7 @@ namespace OpenGL
 		};
 
 
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct SpinsRenderer :Program
 		{
 			BufferConfig spinsArray;
@@ -1217,6 +1275,7 @@ namespace OpenGL
 				glDrawArrays(GL_POINTS, 0, N * N);
 			}
 		};
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct SpinLinesRenderer :Program
 		{
 			BufferConfig spinLinesArray;
@@ -1238,6 +1297,7 @@ namespace OpenGL
 				glDrawArrays(GL_LINES, 0, N * N * 2);
 			}
 		};
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct KinkLinesRenderer :Program
 		{
 			BufferConfig kinkLinesArray;
@@ -1259,6 +1319,7 @@ namespace OpenGL
 				glDrawArrays(GL_LINES, 0, N * N * 2);
 			}
 		};
+		template<unsigned int N, unsigned int SpaceDim = 1>
 		struct EndPointRenderer :Program
 		{
 			BufferConfig endPointArray;
@@ -1285,22 +1346,22 @@ namespace OpenGL
 
 
 		SourceManager sm;
-		Grid grid;
+		Grid<N, SpaceDim> grid;
 
 		Math::vec2<float> origin;
 		Math::vec2<float> ending;
 
-		Spins spins;
-		SpinLines spinLines;
-		KinkLines kinkLines;
+		Spins<N, 1> spins;
+		SpinLines<N, 1> spinLines;
+		KinkLines<N, 1> kinkLines;
 
-		SpinsData spinsData;
-		SpinLinesData spinLinesData;
-		KinkLinesData kinkLinesData;
-		EndPointsData endPointsData;
+		SpinsData<N, SpaceDim> spinsData;
+		SpinLinesData<N, SpaceDim> spinLinesData;
+		KinkLinesData<N, SpaceDim> kinkLinesData;
+		EndPointsData<N, SpaceDim> endPointsData;
 
-		GridSpinsData gridSpinsData;
-		GridKinksData gridKinksData;
+		GridSpinsData<N, SpaceDim> gridSpinsData;
+		GridKinksData<N, SpaceDim> gridKinksData;
 
 
 		Buffer spinsBuffer;
@@ -1314,10 +1375,10 @@ namespace OpenGL
 		BufferConfig gridSpinsStorage;
 		BufferConfig gridKinksStorage;
 
-		SpinsRenderer spinsRenderer;
-		SpinLinesRenderer spinLinesRenderer;
-		KinkLinesRenderer kinkLinesRenderer;
-		EndPointRenderer endPointsRenderer;
+		SpinsRenderer<N, SpaceDim> spinsRenderer;
+		SpinLinesRenderer<N, SpaceDim> spinLinesRenderer;
+		KinkLinesRenderer<N, SpaceDim> kinkLinesRenderer;
+		EndPointRenderer<N, SpaceDim> endPointsRenderer;
 
 		int update;
 
@@ -1367,7 +1428,7 @@ namespace OpenGL
 				grid.reachBalance();
 				update = 0;
 			}
-			/*if (grid.operation == Grid::Annihilate)
+			/*if (grid.operation == Grid::OperationType::Annihilate)
 			{
 				grid.timer.begin();
 				unsigned int warpingNum(grid.traverse());
@@ -1375,21 +1436,31 @@ namespace OpenGL
 				grid.timer.print();
 				printf("Winding Number: %u\n", warpingNum);
 				update = false;
-				grid.operation = Grid::None;
+				grid.operation = Grid::OperationType::None;
 			}*/
 			if (update)
 			{
-				for (;;)
+				grid.timer.begin();
+				for (unsigned int c0(0); c0 < 2000; ++c0)
 				{
 					do
 					{
 						grid.operate();
-					} while (grid.operation != Grid::Annihilate);
-					grid.printResults();
+					} while (grid.operation != Grid<N, SpaceDim>::OperationType::Annihilate);
+
+					//if ((n++ & 1023) == 0)
+						//grid.printResults();
 				}
+				grid.timer.end();
+				grid.timer.print("1000 Loops:");
+
+				grid.timer.begin();
+				grid.traverse();
+				grid.timer.end();
+				grid.timer.print("Traverse:");
 				//update = false;
 
-#ifdef _DEBUG
+#ifdef PRINTDEBUGINFO
 				/*printf("DeltaMove:\t%.3f\nDeltaInsert:\t%.3f\nDeltaDelete:\t%.3f\n",
 					float(grid.deltaMove) / grid.steps,
 					float(grid.deltaInsert) / grid.steps,
@@ -1494,7 +1565,7 @@ int main()
 		}
 	};
 	Window::WindowManager wm(winParameters);
-	OpenGL::VisualGrid visualGrid;
+	OpenGL::VisualGrid<64, 1> visualGrid;
 	wm.init(0, &visualGrid);
 	init.printRenderer();
 	glfwSwapInterval(0);
