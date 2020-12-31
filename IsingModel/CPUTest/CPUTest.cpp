@@ -123,6 +123,11 @@ struct Grid
 	unsigned int Rm;
 	unsigned int rounds;
 	unsigned int steps;
+	//different direction: 1
+	//same      direction: 0
+	//0: n = 1
+	unsigned long long correlation[N / 2];
+	unsigned long long averageSpin;
 
 	unsigned int tp0[BrickNum];
 	unsigned int tp1[BrickNum];
@@ -138,13 +143,13 @@ struct Grid
 #define setGrid(origin, x) (set((origin)[(x)>>5], (x) & 31))
 #define setGridTo1(origin, x) (setTo1((origin)[(x)>>5], (x) & 31))
 
-	Grid()
+	Grid(unsigned int seed)
 		:
 		rd(0, 1),
 		rdint(0, N - 1),
 		rdWorldLineDim(0, SpaceDim - 1),
 		rdWorldLineDir(0, 1),
-		mt(time(nullptr)),
+		mt(time(nullptr) + seed),
 
 		grid((unsigned int*)malloc(GridSize)),
 		gridU((unsigned int*)malloc(GridUSize)),
@@ -167,10 +172,12 @@ struct Grid
 		memset(grid, 0, GridSize);
 		memset(gridU, 0, GridUSize);
 		memset(gridKinks, 0, GridKinksSize);
+		memset(correlation, 0, sizeof(correlation));
 		Ti = -1;
 		Rm = 0;
 		rounds = 0;
 		steps = 0;
+		averageSpin = 0;
 		deltaMove = 0;
 		deltaInsert = 0;
 		deltaDelete = 0;
@@ -182,13 +189,13 @@ struct Grid
 #define IF(x) (x)?
 #define THEN(x) (x):
 #define ELSE(x) (x)
-		tauA =
-			IF(1.f / h < 4)
-			THEN(4)
-			ELSE(
-				IF(1.f / h > N / 2)
-				THEN(N / 2)
-				ELSE((unsigned int)(1.f / h) & (-2)));
+		tauA = 4;
+		//IF(1.f / h < 4)
+		//THEN(4)
+		//ELSE(
+		//	IF(1.f / h > N / 2)
+		//	THEN(N / 2)
+		//	ELSE((unsigned int)(1.f / h) & (-2)));
 #undef IF
 #undef THEN
 #undef ELSE
@@ -359,6 +366,12 @@ struct Grid
 			a += popc(origin[c0]);
 		return a;
 	}
+	//total number of spin-ups
+	void spinUpNum()
+	{
+		for (unsigned int c0(0); c0 < BrickNumTotal; ++c0)
+			averageSpin += popc(grid[c0]);
+	}
 	//calculate the kinks number of world line origin in [t0, t1]
 	unsigned int kinksNum(unsigned int* origin, unsigned int t0, unsigned int t1)
 	{
@@ -474,7 +487,6 @@ struct Grid
 				}
 				Ti = -1;
 				rounds++;
-				Rm += (traverse() != 0);
 				operation = OperationType::Annihilate;
 #ifdef PRINTDEBUGINFO
 				printf("accepted\t");
@@ -785,6 +797,9 @@ struct Grid
 		{
 			operate();
 		} while (operation != OperationType::Annihilate);
+		Rm += (traverse() != 0);
+		calCorrelation();
+		spinUpNum();
 	}
 	//reach balance
 	void reachBalance(unsigned int _n)
@@ -1037,6 +1052,25 @@ struct Grid
 		}
 #undef getState
 	}
+	//correlation
+	void calCorrelation()
+	{
+		for (unsigned int c0(0); c0 < N; ++c0)
+		{
+			for (unsigned int c2(0); c2 < BrickNum; ++c2)
+				tp0[c2] = grid[c0 * BrickNum + c2];
+			for (unsigned int c1(0); c1 < N / 2; ++c1)
+			{
+				unsigned int s(0);
+				unsigned int* origin(grid + ((c0 + c1 + 1) & NMinus1) * BrickNum);
+				for (unsigned int c2(0); c2 < BrickNum; ++c2)
+				{
+					s += popc(tp0[c2] ^ origin[c2]);
+				}
+				correlation[c1] += s;
+			}
+		}
+	}
 
 	//one sample of h
 	void getOneSample(float _h, unsigned int balanceLoops, unsigned int loops)
@@ -1053,7 +1087,17 @@ struct Grid
 		timer.print("2000 loops:");
 		printResults();
 #endif
-		printf("%f\t%f\t%u\n", h, float(Rm) / rounds, tauA);
+		//double cor(correlation[0]);
+		//double avg(averageSpin);
+		//double R(Rm);
+		//cor /= (unsigned long long)loops * SpinNum;
+		//avg /= (unsigned long long)loops * SpinNum;
+		//R /= rounds;
+		//cor = 1 - 2 * cor;
+		//avg = 2 * avg - 1;
+		//cor -= avg * avg;
+		//printf("%f\t%f\n", abs(h), R);
+		//printf("%f\t%f\t%f\t%f\n", abs(h), R, cor, avg);
 	}
 
 	//print one world line
@@ -1098,32 +1142,46 @@ struct GridParameter
 	float h;
 	unsigned int balanceLoops;
 	unsigned int loops;
+	unsigned int threadId;
 	void run()
 	{
 		grid->getOneSample(h, balanceLoops, loops);
 	}
 };
 
-//ptr:	GridParameter
-#ifdef _WIN32
-void (*lambda)(void*) = [](void* ptr)
-#else
-void* (*lambda)(void*) = [](void* ptr)->void*
-#endif
-{
-	((GridParameter<64, 1>*)ptr)->run();
-#ifndef _WIN32
-	return 0;
-#endif
-};
 
 int main()
 {
-	unsigned int balanceLoops(5000);
-	unsigned int loops(1000);
-	float h0(0.01f), h1(1.5f);
-	unsigned int samples(128);
+	constexpr unsigned int N = 64;
+	constexpr unsigned int SpaceDim = 1;
+	using Grid = Grid<N, SpaceDim>;
+	using GridParameter = GridParameter<N, SpaceDim>;
+
+	unsigned int balanceLoops(10000);
+	unsigned int loops(20000);
+	float h0(0.01f), h1(2.f);
+	//float h0(1.f - 0.001f * 15), h1(1.f + 0.001f * 16);
+	constexpr unsigned int samples(128);
 	float dh((h1 - h0) / (samples - 1));
+
+	//ST
+	/*Grid grid;
+	grid.getOneSample(1, balanceLoops, loops);
+	double cor;
+	double avg(grid.averageSpin);
+	avg /= (unsigned long long)loops * Grid::SpinNum;
+	avg = 2 * avg - 1;
+	for (unsigned int c0(0); c0 < N / 2; ++c0)
+	{
+		cor = grid.correlation[c0];
+		cor /= (unsigned long long)loops * Grid::SpinNum;
+		cor = 1 - 2 * cor - avg * avg;
+		printf("%u\t%f\n", c0 + 1, cor);
+	}
+	grid.printResults();*/
+
+	unsigned long long cor[samples][32];
+	unsigned long long avg[samples];
 
 	//MT
 	unsigned long long threadNum;
@@ -1134,10 +1192,11 @@ int main()
 #else
 	threadNum = get_nprocs_conf();
 #endif
+	printf("ThreadNum:%3u\n", threadNum);
 
-	Grid<64, 1>* grids((Grid<64, 1>*)malloc(threadNum * sizeof(Grid<64, 1>)));
-	GridParameter<64, 1>* parameters((GridParameter<64, 1>*)
-		malloc(threadNum * sizeof(GridParameter<64, 1>)));
+	Grid* grids((Grid*)malloc(threadNum * sizeof(Grid)));
+	GridParameter* parameters((GridParameter*)
+		malloc(threadNum * sizeof(GridParameter)));
 
 #ifdef _WIN32
 	HANDLE* threads(nullptr);
@@ -1145,23 +1204,38 @@ int main()
 	pthread_t* threads(nullptr);
 #endif
 #ifdef _WIN32
-	threads = (HANDLE*)::malloc((threadNum - 1) * sizeof(HANDLE));
+	threads = (HANDLE*)::malloc(threadNum * sizeof(HANDLE));
 #else
 	threads = (pthread_t*)::malloc((threadNum - 1) * sizeof(pthread_t));
 #endif
 
+	//ptr:	GridParameter
+#ifdef _WIN32
+	void (*lambda)(void*) = [](void* ptr)
+#else
+	void* (*lambda)(void*) = [](void* ptr)->void*
+#endif
+	{
+		((GridParameter*)ptr)->run();
+#ifdef _WIN32
+		//_endthread();
+#else
+		return 0;
+#endif
+	};
 
 	for (unsigned int c0(0); c0 < threadNum; ++c0)
 	{
-		new(grids + c0)Grid<64, 1>();
+		new(grids + c0)Grid(c0);
 		parameters[c0].grid = grids + c0;
 		parameters[c0].loops = loops;
 		parameters[c0].balanceLoops = balanceLoops;
+		parameters[c0].threadId = c0;
 	}
-
 	for (unsigned int c0(0); c0 < samples; c0 += threadNum)
 	{
-		for (unsigned int c1(0); c1 < threadNum; ++c1)
+		unsigned int c1(0);
+		for (; c1 < threadNum; ++c1)
 		{
 			parameters[c1].h = h0 + (c0 + c1) * dh;
 #ifdef _WIN32
@@ -1171,9 +1245,14 @@ int main()
 			pthread_detach(threads[c1]);
 #endif
 		}
-
 #ifdef _WIN32
-		DWORD rc = WaitForMultipleObjects(threadNum - 1, threads, true, INFINITE);
+		DWORD rc = WaitForMultipleObjects(threadNum, threads, true, INFINITE);
+		for (unsigned int c1(0); c1 < threadNum; ++c1)
+		{
+			avg[c0 + c1] = grids[c1].averageSpin;
+			for (unsigned int c2(0); c2 < N / 2; ++c2)
+				cor[c0 + c1][c2] = grids[c1].correlation[c2];
+		}
 		//if (rc == WAIT_OBJECT_0)
 		//{
 			//printf("All thread terminite\n");
@@ -1186,9 +1265,26 @@ int main()
 #endif
 	}
 
-
 	for (unsigned int c0(0); c0 < threadNum; ++c0)
 		grids[c0].~Grid();
+
+	for (unsigned int c0(0); c0 < samples; ++c0)
+	{
+		double _cor;
+		double _avg(avg[c0]);
+		_avg /= (unsigned long long)loops * Grid::SpinNum;
+		_avg = 2 * _avg - 1;
+		printf("%f\t%f\t", h0 + c0 * dh, _avg);
+		for (unsigned int c1(0); c1 < N / 2; ++c1)
+		{
+			_cor = cor[c0][c1];
+			_cor /= (unsigned long long)loops * Grid::SpinNum;
+			_cor = 1 - 2 * _cor - _avg * _avg;
+			printf("%f\t", _cor);
+		}
+		printf("\n");
+	}
+
 	free(grids);
 	free(parameters);
 	free(threads);
