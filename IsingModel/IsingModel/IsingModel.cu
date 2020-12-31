@@ -8,6 +8,15 @@
 #include <device_functions.h>
 #include <curand_kernel.h>
 
+constexpr unsigned int powd(unsigned int a, unsigned int n)
+{
+	if (n)return powd(a, n - 1) * a;
+	else return 1;
+}
+
+
+
+
 template<class T, unsigned long long blockSize>__device__ void warpReduce(volatile T* sdata, unsigned int tid)
 {
 	if constexpr (blockSize >= 64) sdata[tid] += sdata[tid + 32];

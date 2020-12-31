@@ -1,0 +1,2 @@
+Understanding and realizing the worm algorithm, debugging and optimizing the C++ code that used to generate data;
+Running the code on his own machine, Ryzen R9 3950x
