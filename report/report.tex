@@ -114,19 +114,52 @@ The critical exponents are listed as Table~\ref{tab:critical_exponents}.
   \end{tabular}
 \end{table}
 
-Now let's see the case of quantum phase transition, where we turn on the transverse field $h$ and let $h_z=0$, so we go back to the original Hamiltonian. Taking $d=1$ as the example, we wish to get the partition function $\mathcal{Z}=\mathrm{Tr}[e^{-\beta H}]$. If we take $\beta=1/kT$ as imaginary time, we can calculate the partition function by path integral approach:
-\begin{equation}
-  \begin{aligned}
-    \mathcal{Z}=\sum_{\left\lbrace S^z_{i,l}\right\rbrace }&\left\langle \left\lbrace S_{i,1}^z\right\rbrace\right|e^{-\Delta\tau H}\left|\left\lbrace S_{i,L}^z\right\rbrace\right\rangle\left\langle \left\lbrace S_{i,L}^z\right\rbrace\left|e^{-\Delta\tau H}\right|\left\lbrace S_{i,L-1}^z\right\rbrace\right\rangle \\
-      &\times\cdots\left\langle \left\lbrace S_{i,2}^z\right\rbrace\left|e^{-\Delta\tau H}\right|\left\lbrace S_{i,1}^z\right\rbrace\right\rangle
-  \end{aligned}
-\end{equation}
-where all $S^z_{i,l}$ are $\mathbb{Z}_2$ variables representing z-components of spins at site $i$ and time index $l$. The time slice $\Delta\tau=\beta/L$ and $L \to \infty$. After some calculation, we get the following partition function:
-\begin{equation}
+	Now let's see the case of quantum phase transition, where we turn on the transverse field $h$ and let $h_z=0$, so we go back to the original Hamiltonian. We may analyse the behavior of the system at the first glance as we vary $h$. For $h<h_c$, with $h_c$ the critical field, the classical Ising interaction is the leading term, so the spin tend to be aligned in the $z$ direction, resulting in the ordered phase in $S_z$ representation, while in the $S_x$ representation the phase will be disordered. On the other hand, for $h>h_c$, the spin tend to polarized in $x$ direction, so we may get the phase with ordered $S_x$ and disordered $S_z$. This shows the implicit duality between $S_x$ and $S_z$ representation.
+	
+	In order to calculate the properties of quantum criticality such as the correlation functions more conveniently, we start from Jordan-Wigner transformation in one dimensional system:
+	\begin{equation}
+		\begin{align}
+		\sigma_i^z&=-\prod_{j<i}(1-2c_j^{\dagger}c_j)(c_i+c_i^{\dagger})\\
+		\sigma_i^x&=1-2c_i^{\dagger}c_i
+		\end{align}
+	\end{equation}
+	with $c_i,c_i^{\dagger}$ the creation and annihilation operators of fermion. Correspondingly the Hamiltonian can be expressed as:
+	\begin{equation}
+		\mathcal{H}=-J\sum_i(c_i^{\dagger}c_{i+1}+c_{i+1}^{\dagger}c_i+c_i^{\dagger}c_{i+1}^{\dagger}+c_{i+1}c_i)-h\sum_i(1-2c_i^{\dagger}c_i)
+	\end{equation}
+	
+	We may diagonalize this Hamiltonian via Bogoliubov transformation just like what we do in spin wave theory and BCS superconductors. If we further introduce the Majorana fermion representation:
+	\begin{equation}
+	\begin{align}
+	i\psi_i&=c_i-c_i^{\dagger}\\
+	\bar{\psi}_i&=c_i+c_i^{\dagger}
+	\end{align}
+	\end{equation}
+	and do the Wick rotation to the imaginary time, we may get the action of the free Majorana fermion(in the continuous limit):
+	\begin{equation}
+		S=\frac{i}{2}\int\psi(\partial_0-\partial_1)\psi+\bar{\psi}(\partial_0+\partial_1)\bar{\psi}+m_0\psi\bar{\psi}
+	\end{equation}
+	where $\partial_0=\partial_t$, $\partial_1=\partial_x$, and $m_0=1-h/J$. When $h=J$, we reached the criticality with scale invariance. The corresponding correlation functions are:
+	\begin{equation}
+    \begin{align}
+	  \langle \sigma_i^z(i)\sigma_i^z(i+n)\rangle&\sim\frac{1}{|n|^{1/4}}\\	
+	  \langle \sigma_i^x(i)\sigma_i^x(i+n)\rangle&\sim\frac{1}{|n|^2}
+    \end{align}
+	\end{equation}
+	
+	Then we show the relation between classical and quantum model. If we take $\beta=1/kT$ as imaginary time, we can calculate the partition function $\mathcal{Z}=\mathrm{Tr}[e^{-\beta H}]$ by path integral approach:
+	\begin{equation}
+	\begin{aligned}
+	\mathcal{Z}=\sum_{\left\lbrace S^z_{i,l}\right\rbrace }&\left\langle \left\lbrace S_{i,1}^z\right\rbrace\right|e^{-\Delta\tau H}\left|\left\lbrace S_{i,L}^z\right\rbrace\right\rangle\left\langle \left\lbrace S_{i,L}^z\right\rbrace\left|e^{-\Delta\tau H}\right|\left\lbrace S_{i,L-1}^z\right\rbrace\right\rangle \\
+	&\times\cdots\left\langle \left\lbrace S_{i,2}^z\right\rbrace\left|e^{-\Delta\tau H}\right|\left\lbrace S_{i,1}^z\right\rbrace\right\rangle
+	\end{aligned}
+	\end{equation}
+	where all $S^z_{i,l}$ are $\mathbb{Z}_2$ variables representing z-components of spins at site $i$ and time index $l$. The time slice $\Delta\tau=\beta/L$ and $L \to \infty$. After some calculation, we get the following partition function:
+	\begin{equation}
 	\mathcal{Z}=\Lambda^{NL}\sum_{\left\lbrace S^z_{i,l}\right\rbrace }\exp\left[\sum_{i=1}^N\sum_{l=1}^L\left(\Delta\tau JS^z_{i,l}S^z_{i+1,l}+\gamma S^z_{i,l}S^z_{i,l+1}\right)\right]
-\end{equation}
-with $\gamma=-\frac{1}{2}\log[ \tanh(\Delta\tau h) ]$ and $\Lambda^2=\sinh(\Delta\tau h)\cosh(\Delta\tau h)$. So we can see that the 1+1 dimensional quantum Ising model is mapped to a 2+1 dimensional classical Ising model. Moreover, when we vary the transverse field $h$, the system will exhibit quantum phase transition.
-
+	\end{equation}
+	with $\gamma=-\frac{1}{2}\log[ \tanh(\Delta\tau h) ]$ and $\Lambda^2=\sinh(\Delta\tau h)\cosh(\Delta\tau h)$. So we can see that the 1+1 dimensional quantum Ising model is mapped to a 2+1 dimensional classical Ising model. Moreover, when we vary the transverse field $h$, the system will exhibit quantum phase transition.
+	
 \section{Worm Algorithm}
 The Hamiltonian of quantum transverse-field Ising model (TFI) can be rewritten as
 \begin{equation}
