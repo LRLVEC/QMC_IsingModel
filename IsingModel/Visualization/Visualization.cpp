@@ -55,18 +55,18 @@ struct Grid
 	static constexpr float APb = Pa + Pb;
 	static constexpr float APc0 = Pa + Pb + Pc;
 
-	static constexpr float h = 0.04f;
+	static constexpr float h = 1.5f;
 
 #define IF(x) (x)?
 #define THEN(x) (x):
 #define ELSE(x) (x)
-	static constexpr unsigned int tauA =
-		IF(1.f / h < 4)
-		THEN(4)
-		ELSE(
-			IF(1.f / h > N / 2)
-			THEN(N / 2)
-			ELSE((unsigned int)(1.f / h) & (-2)));		//\tau_a
+	static constexpr unsigned int tauA = 4;
+		//IF(1.f / h < 4)
+		//THEN(4)
+		//ELSE(
+		//	IF(1.f / h > N / 2)
+		//	THEN(N / 2)
+		//	ELSE((unsigned int)(1.f / h) & (-2)));		//\tau_a
 #undef IF
 #undef THEN
 #undef ELSE
@@ -1269,9 +1269,9 @@ namespace OpenGL
 			}
 			virtual void run()override
 			{
-				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT);
-				glPointSize(3);
+				glPointSize(5);
 				glDrawArrays(GL_POINTS, 0, N * N);
 			}
 		};
@@ -1441,7 +1441,7 @@ namespace OpenGL
 			if (update)
 			{
 				grid.timer.begin();
-				for (unsigned int c0(0); c0 < 2000; ++c0)
+				for (unsigned int c0(0); c0 < 1; ++c0)
 				{
 					do
 					{
@@ -1479,6 +1479,7 @@ namespace OpenGL
 			glDisable(GL_DEPTH_TEST);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glLineWidth(3);
 			//trans.init(_size);
 			//renderer.transUniform.dataInit();
 			//renderer.particlesArray.dataInit();

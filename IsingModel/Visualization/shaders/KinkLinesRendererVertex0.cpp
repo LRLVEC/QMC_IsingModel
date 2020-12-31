@@ -27,7 +27,7 @@ void main()
 	unsigned int X = id >> LogN;
 	unsigned int offset = X * BrickNum;
 	if (get(spinKinks[offset + (T >> 5)], T & 31) == 1)
-		fragColor = vec4(0.862f, 0.f, 0.725f, 1.f);
+		fragColor = vec4(0.862f, 0.f, 0.f, 1.f);
 	else
 		fragColor = vec4(0.f);
 }
