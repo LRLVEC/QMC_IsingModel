@@ -23,6 +23,7 @@
 \usepackage[affil-it]{authblk}
 \usepackage{ebgaramond}
 \usepackage{geometry}
+\usepackage{subfig}
 
 \renewcommand*{\thefootnote}{\fnsymbol{footnote}}
 
@@ -117,35 +118,29 @@ The critical exponents are listed as Table~\ref{tab:critical_exponents}.
 	Now let's see the case of quantum phase transition, where we turn on the transverse field $h$ and let $h_z=0$, so we go back to the original Hamiltonian. We may analyse the behavior of the system at the first glance as we vary $h$. For $h<h_c$, with $h_c$ the critical field, the classical Ising interaction is the leading term, so the spin tend to be aligned in the $z$ direction, resulting in the ordered phase in $S_z$ representation, while in the $S_x$ representation the phase will be disordered. On the other hand, for $h>h_c$, the spin tend to polarized in $x$ direction, so we may get the phase with ordered $S_x$ and disordered $S_z$. This shows the implicit duality between $S_x$ and $S_z$ representation.
 	
 	In order to calculate the properties of quantum criticality such as the correlation functions more conveniently, we start from Jordan-Wigner transformation in one dimensional system:
-	\begin{equation}
 		\begin{align}
 		\sigma_i^z&=-\prod_{j<i}(1-2c_j^{\dagger}c_j)(c_i+c_i^{\dagger})\\
 		\sigma_i^x&=1-2c_i^{\dagger}c_i
 		\end{align}
-	\end{equation}
 	with $c_i,c_i^{\dagger}$ the creation and annihilation operators of fermion. Correspondingly the Hamiltonian can be expressed as:
 	\begin{equation}
 		\mathcal{H}=-J\sum_i(c_i^{\dagger}c_{i+1}+c_{i+1}^{\dagger}c_i+c_i^{\dagger}c_{i+1}^{\dagger}+c_{i+1}c_i)-h\sum_i(1-2c_i^{\dagger}c_i)
 	\end{equation}
 	
 	We may diagonalize this Hamiltonian via Bogoliubov transformation just like what we do in spin wave theory and BCS superconductors. If we further introduce the Majorana fermion representation:
-	\begin{equation}
 	\begin{align}
 	i\psi_i&=c_i-c_i^{\dagger}\\
 	\bar{\psi}_i&=c_i+c_i^{\dagger}
 	\end{align}
-	\end{equation}
-	and do the Wick rotation to the imaginary time, we may get the action of the free Majorana fermion(in the continuous limit):
+	and do the Wick rotation to the imaginary time, we may get the action of the free Majorana fermion (in the continuous limit):
 	\begin{equation}
 		S=\frac{i}{2}\int\psi(\partial_0-\partial_1)\psi+\bar{\psi}(\partial_0+\partial_1)\bar{\psi}+m_0\psi\bar{\psi}
 	\end{equation}
 	where $\partial_0=\partial_t$, $\partial_1=\partial_x$, and $m_0=1-h/J$. When $h=J$, we reached the criticality with scale invariance. The corresponding correlation functions are:
-	\begin{equation}
     \begin{align}
 	  \langle \sigma_i^z(i)\sigma_i^z(i+n)\rangle&\sim\frac{1}{|n|^{1/4}}\\	
 	  \langle \sigma_i^x(i)\sigma_i^x(i+n)\rangle&\sim\frac{1}{|n|^2}
     \end{align}
-	\end{equation}
 	
 	Then we show the relation between classical and quantum model. If we take $\beta=1/kT$ as imaginary time, we can calculate the partition function $\mathcal{Z}=\mathrm{Tr}[e^{-\beta H}]$ by path integral approach:
 	\begin{equation}
@@ -158,7 +153,7 @@ The critical exponents are listed as Table~\ref{tab:critical_exponents}.
 	\begin{equation}
 	\mathcal{Z}=\Lambda^{NL}\sum_{\left\lbrace S^z_{i,l}\right\rbrace }\exp\left[\sum_{i=1}^N\sum_{l=1}^L\left(\Delta\tau JS^z_{i,l}S^z_{i+1,l}+\gamma S^z_{i,l}S^z_{i,l+1}\right)\right]
 	\end{equation}
-	with $\gamma=-\frac{1}{2}\log[ \tanh(\Delta\tau h) ]$ and $\Lambda^2=\sinh(\Delta\tau h)\cosh(\Delta\tau h)$. So we can see that the 1+1 dimensional quantum Ising model is mapped to a 2+1 dimensional classical Ising model. Moreover, when we vary the transverse field $h$, the system will exhibit quantum phase transition.
+	with $\gamma=-\frac{1}{2}\log[ \tanh(\Delta\tau h) ]$ and $\Lambda^2=\sinh(\Delta\tau h)\cosh(\Delta\tau h)$. So we can see that the $1+1$ dimensional quantum Ising model is mapped to a $2+1$ dimensional classical Ising model. Moreover, when we vary the transverse field $h$, the system will exhibit quantum phase transition.
 	
 \section{Worm Algorithm}
 The Hamiltonian of quantum transverse-field Ising model (TFI) can be rewritten as
@@ -275,7 +270,27 @@ The worm algorithm can be concluded as Algorithm~\ref{algorithm}, in which \text
 \section{Numerical Results}
 We calculate the phase transition of TFI based on the worm algorithm. When the transverse field $h = 0$, there exists the $\mathbb{Z}_2$ symmetry which means that the spin-up and spin-down states are fully balanced, and the system is in a ferromagnetic phase. As $h$ turns on, the system evolves into a disordered phase with the spin-down state being suppressed. And once $h > h_c$, the system enters into the spin-up ordered phase through a second-order quantum phase transition. Because it is $h_c/t$ rather than $h_c$ itself that describes the physical properties of the model, we simply set $t = 1$ for simplicity of calculation.
 
-We discretize the imaginary time so that the calculation is more efficient, which makes our system is indeed a $(d+1)$D lattice. Because the dynamic critical exponent $z = 1$ for the TFI, we choose the inverse temperature $\beta = L$, where $L$ is the spatial lattice size. We also applied the periodic boundary conditions, so the space-time lattice is a torus in fact. We mainly calculate the 1D TFI with $L = 64$ and $128$ in our current work.
+We discretize the imaginary time so that the calculation is more efficient, which makes our system is indeed a $(d+1)$D lattice. Because the dynamic critical exponent $z = 1$ for the TFI, we choose the inverse temperature $\beta = L$, where $L$ is the spatial lattice size. We also applied the periodic boundary conditions, so the space-time lattice is a torus in fact. We mainly calculate the $1$D TFI with $L = 64$ and $128$ in our current work.
+
+In Fig.~\ref{fig:Z_configuratons} we show typical $\mathcal{Z}$ configurations when $h = 0.01$, $0.5$, $1.0$, $1.5$. It is obvious that when $h < 1$, there are many loops wrapping around the spatial direction; but when $h > 1$, the loops are small and unable to percolate.
+
+\begin{figure}[htpb]
+  \centering
+  \subfloat[$h=0.01$.]{
+  	\label{fig:0.01}
+		\includegraphics[width=0.4\textwidth]{figs/0.01.png}}
+  \subfloat[$h=0.5$.]{
+  	\label{fig:0.5}
+		\includegraphics[width=0.4\textwidth]{figs/0.5.png}}\\
+  \subfloat[$h=1.0$.]{
+  	\label{fig:1.0}
+		\includegraphics[width=0.4\textwidth]{figs/1.0.png}}
+  \subfloat[$h=1.5$.]{
+  	\label{fig:1.5}
+		\includegraphics[width=0.4\textwidth]{figs/1.5.png}}
+		\caption{Typical $\mathcal{Z}$ configurations when the transverse field $h$ is different. The spatial direction is vertical and the imaginary time direction is horizontal. The black (green) dots represent the spin-up (spin-down) states, and the red lines represents two kinds of kinks.}
+		\label{fig:Z_configuratons}
+\end{figure}
 
 To get the critical point $h_c$, we mainly focus on the topological properties instead of physical quantities like the magnetic susceptibility of $\mathcal{Z}$ configurations when sampling. In more detail, for a given $\mathcal{Z}$ configuration, we can count the winding number $W_i^l$ of the $l$-th loop along the $i$-th spatial direction. The total winding number $W_i = \sum_{l}W_i^l$ can be used to determine whether the $\mathcal{Z}$ configuration wrap along the $i$-th direction or not, which is indicated as $R_i = 1$ if $W_i > 0$ and $R_i = 0$ otherwise. Then the average wrapping probability $R = \sum_{i=1}\braket{R_i}/d$ is calculated, which indicates whether the in-site energy $U$ or the interaction $K$ dominates. If $|h| \gg 1$, $U$ dominates, which means that the loops are small and difficult to percolate, hence $R$ should be small (near $0$). But if $|h| \ll 1$, $K$ dominates, so $R$ should be large (near $1$). In calculation, we traverse all loops of a $\mathcal{Z}$ configuration based on depth-first search (DFS).
 
@@ -301,7 +316,7 @@ We also calculate the correlation functions $C_n$ of this system, which is defin
   \overline{\sigma_i^z \sigma_{i+n}^z} \equiv \frac{1}{L^2} \sum_{j,k}\sigma_{j,k}^z \sigma_{j+n,k}^z,\\
   C_n \equiv \overline{\sigma_i^z \sigma_{i+n}^z}-\overline{\sigma_i^z}^2,
 \end{gather}
-where $\sigma_{j,k}^z$ is the spin state at site $j$ and imaginary time $k$. Fig.~\ref{fig:correlation_functions} shows that when $L = 64$ and $128$, these quantities also indicate the exitence of phase transition and criticality. We notice that these quantities show little dependence on the lattice size $L$, which is reasonable since the lattice sizes we used in calculation are not so small. However, the finite-size effect can also be seen in the results, which eliminates the divergence of $C_1$ at the critical point. Moreover, the peaks of $C_1$ in Fig.~\ref{fig:correlation_functions} are a bit lager than $h_c$. We think this comes from the influences of the finite-size effect and the non-zero temperature $\beta = L < \infty$.
+where $\sigma_{j,k}^z$ is the spin state at site $j$ and imaginary time $k$. Fig.~\ref{fig:correlation_functions} shows that when $L = 64$ and $128$, these quantities also indicate the existence of phase transition and criticality. We notice that these quantities show little dependence on the lattice size $L$, which is reasonable since the lattice sizes we used in calculation are not so small. However, the finite-size effect can also be seen in the results, which eliminates the divergence of $C_1$ at the critical point. Moreover, the peaks of $C_1$ in Fig.~\ref{fig:correlation_functions} are a bit lager than $h_c$. We think this comes from the influences of the finite-size effect and the non-zero temperature $\beta = L < \infty$.
 
 \begin{figure}[htpb]
   \centering
@@ -310,8 +325,29 @@ where $\sigma_{j,k}^z$ is the spin state at site $j$ and imaginary time $k$. Fig
   \label{fig:C_n}
 \end{figure}
 
-Different correlation functions $|C_n|$ with different transverse field $h$ are shown in Fig.~\ref{fig:C_n}. We see that there are peaks of $|C_n|$ when $h$ is near $h_c$. This is also consitent with the phase transition. However, we notice that the positions of peaks of different $|C_n|$ are not the same. More precisely, it seems that the peaks of $|C_{2n}|$ and those of $|C_{2n+1}|$ are at two distinct positions. We do not quite understand this behavior, which may give insights to more interesting correlation effects in TFI.
+Different correlation functions $|C_n|$ with different transverse field $h$ are shown in Fig.~\ref{fig:C_n}. We see that there are peaks of $|C_n|$ when $h$ is near $h_c$. This is also consistent with the phase transition. However, we notice that the positions of peaks of different $|C_n|$ are not the same. More precisely, it seems that the peaks of $|C_{2n}|$ and those of $|C_{2n+1}|$ are at two distinct positions. We do not quite understand this behavior, which may give insights to more interesting correlation effects in TFI.
 
 We are sorry that we didn't calculate many of the physical quantities that we wrote in our project plan. The time limitation is the major cause of it. Because we find that using worm algorithm to solve TFI is a completely different project to solving the classical Ising model, and it's more interesting and adventurous, so we focused on this. We planned to write code for different dimensional TFI, but since the code is highly relevant to the dimensionality (data structures, traverse methods, etc.), we didn't have time to implement another version of code. And some data are not so satisfactory due to the limitation of computational resource. Nevertheless, we think the worm algorithm, which ingeniously combines the Monte Carlo method and the path integral approach, has high efficiency which makes it possible to use this algorithm to solve many more complex problems.
 
+\section*{Contributions}
+\begin{itemize}
+  \item Yuanxing Duan: 
+		\begin{enumerate}
+		  \item Understanding and realizing the worm algorithm, debugging and optimizing the C++ code that used to generate data.
+			\item Running the code on his own machine, Ryzen R9 3950x.
+			\item Visualization (Fig.~\ref{fig:Z_configuratons}).
+		\end{enumerate}
+	\item Shixin Hu:
+		\begin{enumerate}
+			\item Theoretical analysis and some predictions on the critical behavior of correlation functions (Sec.~1).
+			\item Report writing of the Introduction part (Sec.~1).
+		\end{enumerate}
+	\item Fangyu Xiong:
+		\begin{enumerate}
+		  \item Helping Yuanxing Duan in understanding the worm algorithm, designing of the algorithm to compute the wrapping probability, and determining what quantities to calculate.
+			\item Writing Sec.~2-3 of the report.
+			\item Plotting Fig.~\ref{fig:updates},\ref{fig:wrapping_probability}-\ref{fig:C_n}. Making Table \ref{tab:critical_exponents}.
+			\item Data analysis (Sec.~3).
+		\end{enumerate}
+\end{itemize}
 \end{document}
