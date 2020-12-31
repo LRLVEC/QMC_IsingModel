@@ -22,6 +22,7 @@
 \usepackage{algorithmic}
 \usepackage[affil-it]{authblk}
 \usepackage{ebgaramond}
+\usepackage{geometry}
 
 \renewcommand*{\thefootnote}{\fnsymbol{footnote}}
 
@@ -243,14 +244,14 @@ We calculate the phase transition of TFI based on the worm algorithm. When the t
 
 We discretize the imaginary time so that the calculation is more efficient, which makes our system is indeed a $(d+1)$D lattice. Because the dynamic critical exponent $z = 1$ for the TFI, we choose the inverse temperature $\beta = L$, where $L$ is the spatial lattice size. We also applied the periodic boundary conditions, so the space-time lattice is a torus in fact. We mainly calculate the 1D TFI with $L = 64$ and $128$ in our current work.
 
-To get the critical point $h_c$, we focus on the topological properties instead of physical quantities like the magnetic susceptibility of $\mathcal{Z}$ configurations when sampling. In more detail, for a given $\mathcal{Z}$ configuration, we can count the winding number $W_i^l$ of the $l$-th loop along the $i$-th spatial direction. The total winding number $W_i = \sum_{l}W_i^l$ can be used to determine whether the $\mathcal{Z}$ configuration wrap along the $i$-th direction or not, which is indicated as $R_i = 1$ if $W_i > 0$ and $R_i = 0$ otherwise. Then the average wrapping probability $R = \sum_{i=1}\braket{R_i}/d$ is calculated, which indicates whether the in-site energy $U$ or the interaction $K$ dominates. If $|h| \gg 1$, $U$ dominates, which means that the loops are small and difficult to percolate, hence $R$ should be small (near $0$). But if $|h| \ll 1$, $K$ dominates, so $R$ should be large (near $1$). In calculation, we traverse all loops of a $\mathcal{Z}$ configurationo based on depth-first search (DFS).
+To get the critical point $h_c$, we focus on the topological properties instead of physical quantities like the magnetic susceptibility of $\mathcal{Z}$ configurations when sampling. In more detail, for a given $\mathcal{Z}$ configuration, we can count the winding number $W_i^l$ of the $l$-th loop along the $i$-th spatial direction. The total winding number $W_i = \sum_{l}W_i^l$ can be used to determine whether the $\mathcal{Z}$ configuration wrap along the $i$-th direction or not, which is indicated as $R_i = 1$ if $W_i > 0$ and $R_i = 0$ otherwise. Then the average wrapping probability $R = \sum_{i=1}\braket{R_i}/d$ is calculated, which indicates whether the in-site energy $U$ or the interaction $K$ dominates. If $|h| \gg 1$, $U$ dominates, which means that the loops are small and difficult to percolate, hence $R$ should be small (near $0$). But if $|h| \ll 1$, $K$ dominates, so $R$ should be large (near $1$). In calculation, we traverse all loops of a $\mathcal{Z}$ configuration based on depth-first search (DFS).
 
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\textwidth]{figs/wrapping_probability.pdf}
-  \caption{Wrapping probability of spin-up $R$ versus the transverse field $h$.}
+  \caption{Wrapping probabilities $R_\uparrow$ and $R_\downarrow$ versus the transverse field $h$.}
   \label{fig:wrapping_probability}
 \end{figure}
 
-The Monte Carlo results in Fig.~\ref{fig:wrapping_probability} show that the spin-up loops display critical behaviors near $h = h_c = 1$, which is the theoretical value of the critical point. When $h < h_c$, $R$ has non-zero values, which means the system is indeed in an interaction-dominating phase. When $h$ increases, $R$ slowly decreases, which is easy to understand, since the increasing $h$ makes $\mathcal{Z}$ configurations with ``longer fragments'' of spin-up states for a given lattice site along the imaginary time direction are more possible to be sampled, which slightly restrains the wrapping probability of spin-up. If $h$ increases further over $h_c$, $R$ will drop to $0$ quickly. This is because in this phase, most sampled $\mathcal{Z}$ configurations will be dominated by spin-up states, which makes the number of kinks too small for spin-up loops to percolate.
+The Monte Carlo results in Fig.~\ref{fig:wrapping_probability} show that both the spin-up and spin-down loops display critical behaviors near $h = h_c = 1$, which is the theoretical value of the critical point. When $h < h_c$, $R_\uparrow$ and $R_\downarrow$ have non-zero values, which means the system is indeed in an interaction-dominating phase. When $h$ increases, $R_\uparrow$ slowly decreases, which is easy to understand, since the increasing $h$ makes $\mathcal{Z}$ configurations with ``longer fragments'' of spin-up states for a given lattice site along the imaginary time direction are more possible to be sampled, which slightly restrains the wrapping probability of spin-up. For a similar reason, $R_\downarrow$ increases slightly when $h$ increases. If $h$ increases further over $h_c$, $R_\downarrow$ will drop to $0$ quickly, since the spin-down loops are too small to wrap around the spatial direction. The same behavior is seen for $R_\uparrow$, which is because in this phase, most sampled $\mathcal{Z}$ configurations will be dominated by spin-up states, which makes the number of kinks too small for spin-up loops to percolate.
 \end{document}
