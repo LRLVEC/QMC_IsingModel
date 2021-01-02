@@ -90,6 +90,117 @@
 \begin{document}
 \maketitle
 
+\section{Introduction to Transverse Field Ising}
+\begin{frame}{Classical Ising Model}
+Hamiltonian:
+
+\[
+\mathcal{H}=-t\sum_{\braket{ij}}\sigma_i^z\sigma_j^z-h_z\sum_{i}\sigma_i^z
+\]
+
+Thermal Fluctuation $\Longrightarrow$ Thermal(Classical) Phase Transition
+\[
+\]
+Low T: Ordered state
+
+High T: Paramagnetic state
+\end{frame}
+
+\begin{frame}
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Figures/Critical_Exponents.png}
+	\caption{Critical exponents of Classical Ising Model}
+	\label{fig:Critical Exponents}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Quantum Ising Model}
+Hamiltonian of Transverse Field Ising model (TFI):
+\[
+\mathcal{H}=-t\sum_{\braket{ij}}\sigma_i^z\sigma_j^z-h\sum_{i}\sigma_i^x
+\]
+$[\sigma_i^z,\sigma_i^x]\ne0$ $\Longrightarrow$ Quantum Fluctuation!
+
+\[
+\]
+
+Quantum Phase Transition:
+
+$h<<t$: Spins aligned in z-direction.
+
+$h>>t$: Spins aligned in x-direction.
+\end{frame}
+
+\begin{frame}{Theoretical Calculation}
+
+Jordan-Wigner tranformation:
+\[
+\sigma_i^x =1-2c^{\dagger}_ic_i
+\]
+\[
+\sigma_i^z =-\prod_{j<i}(1-2c^{\dagger}_jc_j)(c_i+c_i^{\dagger})
+\]
+
+$c_i$s are fermion operators.
+\[
+\]
+Hamiltonian becomes:
+\[
+\mathcal{H}=-t\sum_{i}(c^{\dagger}_ic_{i+1}+c^{\dagger}_{i+1}c_i+c^{\dagger}_ic^{\dagger}_{i+1}+c_{i+1}c_i-2gc^{\dagger}_ic_i+g)
+\]
+with $g=h/t$
+\end{frame}
+
+\begin{frame}{Theoretical Calculation}
+Solve it by Bogoliubov transformation:
+\[
+\gamma_k=u_kc_k-v_kc_{-k}^{\dagger}
+\]
+\[
+\gamma_k^{\dagger}=u_kc_k^{\dagger}-v_kc_{-k}
+\]
+with $c_k$ Fourier transformation of $c_i$. And
+\[
+u_k=\mathrm{cos}\left( \frac{\theta_k}{2}\right), v_k=\mathrm{sin}\left( \frac{\theta_k}{2}\right) 
+\]
+\[
+\mathrm{tan}\left(\theta_k\right)=\frac{\mathrm{sin}(ka)}{g-\mathrm{cos}(ka)}
+\]
+\end{frame}
+
+\begin{frame}{Theoretical Calculation}
+Switch to Majorana representation (continuous limit):
+\[
+\psi(x_i)=-i(c_i-c_i^{\dagger})=\frac{1}{2N}\sum_k(u_1(k)\gamma_k^{\dagger}e^{ikx_i}+h.c.)
+\]
+\[
+\bar{\psi}(x_i)=c_i+c_i^{\dagger}=\frac{1}{2N}\sum_k(u_2(k)\gamma_k^{\dagger}e^{ikx_i}+h.c.)
+\]
+$\Longrightarrow$ Solution of 1+1D Dirac equation
+\end{frame}
+
+\begin{frame}{Theoretical Calculation}
+The action:
+\[
+S=\frac{i}{2}\int\psi(\partial_0-\partial_1)\psi+\bar{\psi}(\partial_0+\partial_1)\bar{\psi}+(1-g)\psi\bar{\psi}
+\]
+$g=1$ $\Longrightarrow$ masless, scale invariance 
+\[
+\]
+$\Longrightarrow$ Critical Point at $h=t$!!
+\end{frame}
+
+\begin{frame}
+The two point correlation functions at criticality:
+\[
+\braket{\sigma_i^z\sigma_{i+n}^z}\propto\frac{1}{|n|^{1/4}}
+\]
+\[
+\braket{\sigma_i^x\sigma_{i+n}^x}\propto\frac{1}{|n|^2}
+\]
+\end{frame}
+
 \section{Worm Algorithm}
 \begin{frame}{Holstein-Primakoff Transformation}
   TFI:
