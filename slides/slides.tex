@@ -19,6 +19,7 @@
 \usepackage[absolute,overlay]{textpos}
 \usepackage[export]{adjustbox}
 \usepackage{nccmath}
+\usepackage{media9}
 
 \DeclareMathOperator{\Tr}{Tr}
 
@@ -289,6 +290,37 @@ The two point correlation functions at criticality:
   \vspace{-3mm}
   $\tau_a$, $\tau_b$, $\tau_c$: ranges for choosing random time displacement.\\
   \textit{A priori} probabilities: $\mathcal{A}_a+\mathcal{A}_b+2\mathcal{A}_c = 1$.
+\end{frame}
+
+\section{C++ Implement}
+\begin{frame}{The Grid}
+  \begin{itemize}
+    \item Use one bit to represent one spin
+    \item Use one bit to represent one kink between two world lines
+    \item Use bitwise $\bf{XOR}$ with mask to flip spins and calculate the correlation
+    \item Use $\bf{OR}$ to get the state of one spin
+    \item Use bitwise $\bf{OR}$ to get the positions without kinks
+    \item Use $\bf{\_\_popcnt}$ to count spin-up number
+    \item Use $\bf{\_tzcnt\_u32}$ to find the first set bit to find the starting point of one loop in the grid
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Warpping Number of Loops}
+  \begin{itemize}
+    \item Depth first search
+    \item Must traverse the whole grid to find all loops and calculate the warpping number of each loop
+    \item This doesn't affect the performance since its time consumption is about 1\% of creating and annihilating once
+    \item Use a direction to make sure that the current point donsn't goes it way back
+    \item Mark the spins "walked" to avoid traversing one loop twice
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Miscellaneous}
+  \begin{itemize}
+    \item Use OpenGL to implement visualization
+    \item Reached 1000 times creating and annihilating per second under grid size $N$=64 with single thread
+    \item For $R_\downarrow$, we can simply change the sign of $h$
+  \end{itemize}
 \end{frame}
 
 \section{Numerical Results}
